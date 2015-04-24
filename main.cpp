@@ -4,6 +4,7 @@
 
 spgk_input_t * loadCFG(const std::string & path, const std::string & cfg) {
   // TODO Read JSON of CFG and return an input formated for the Shortest Path Graph Kernel
+  //      Need to transforme the sequence of instruction into an array => requires dictionary of the instructions in all CFG of both CG !!!!
   return NULL;
 }
 
