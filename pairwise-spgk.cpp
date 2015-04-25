@@ -24,15 +24,20 @@ struct similarity_matrix_t {
   float ** similarities;
 
   similarity_matrix_t(const std::string & path, const std::string & cg_1, const std::string & cg_2) :
-    labels_1(), labels_2(), results(NULL)
+    labels_1(), labels_2(), similarities(NULL)
   {
     getNodesCG(path, cg_1, labels_1);
     getNodesCG(path, cg_2, labels_2);
 
     float * data = new float[labels_1.size() * labels_2.size()];
-    similarities = new (float*)[labels_1.size()];
-    for (i = 0; i < labels_1.size(); i++)
+    similarities = new float*[labels_1.size()];
+    for (size_t i = 0; i < labels_1.size(); i++)
       similarities[i] = &(data[i * labels_2.size()]);
+  }
+
+  ~similarity_matrix_t() {
+    delete [] similarities[0];
+    delete [] similarities;
   }
 };
 
@@ -44,7 +49,7 @@ similarity_matrix_t * compare_CG(const std::string & path, const std::string & c
   for (int i = 0; i < res->labels_1.size(); i++) {
     for (int j = 0; j < res->labels_2.size(); j++) {
       std::map<std::string, size_t> instruction_dictionary; // TODO Fill it!!! (Start with a global dictionnary containing all 745 instructions)
-      res->results[i][j] = similarity(path, labels_1[i], labels_2[j], instruction_dictionary);
+      res->similarities[i][j] = similarity(path, res->labels_1[i], res->labels_2[j], instruction_dictionary);
     }
   }
 

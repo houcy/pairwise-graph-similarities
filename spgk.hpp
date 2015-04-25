@@ -6,6 +6,9 @@
 #  define SPKG_VECTOR_KERNEL gaussian_kernel
 #endif
 
+#include <iostream>
+#include <cstddef>
+
 // Input for the Shortest Path Graph Kernel 
 struct spgk_input_t {
   size_t num_nodes;     /// Number of nodes in the graph
@@ -24,14 +27,18 @@ struct spgk_input_t {
 
   bool shorted;         /// True if Floyd-Warshall Algorithm has been applied
 
-  spgk_input_t(size_t num_nodes_, size_t data_size_);
+  spgk_input_t(size_t num_nodes_, size_t features_size_);
   ~spgk_input_t();
 
   void floyd_warshall();
+
+  void randomize();
+
+  void print(std::ostream & out);
 };
 
 // Shortest Path Graph Kernel: sequential version of this code will be provided
-float SPGK(spgk_input_t * in_1, spgk_input_t * in_2);
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param = 3.0);
 
 #endif /* __SPKG_HPP__ */
 
