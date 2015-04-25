@@ -1,15 +1,37 @@
 
+#ifndef __SPKG_HPP__
+#define __SPKG_HPP__
+
+#ifndef SPKG_VECTOR_KERNEL
+#  define SPKG_VECTOR_KERNEL gaussian_kernel
+#endif
+
 // Input for the Shortest Path Graph Kernel 
 struct spgk_input_t {
-  size_t num_nodes;
-  size_t data_size
-  float ** node_data;
-  int ** adjacency;
+  size_t num_nodes;     /// Number of nodes in the graph
+  size_t features_size; /// Size of the feature vectors in this graph
 
-  spgk_input_t(size_t num_nodes, size_t data_size);
+  float ** features;    /// Feature vectors for each node (num_nodes x features_size)
+  float ** adjacency;   /// Adjacency matrix of the graph (num_nodes x num_nodes).
+                        /// Initialized for Floyd-Warshall Algorithm:
+                        ///   Given i and j the indexes of two nodes:
+                        ///     adjacency[i][j] =
+                        ///       |  INFINITY        if there is no edges between Node[i] and Node[j]
+                        ///       |  0               if i == j
+                        ///       |  distance(i,j)   else
+                        ///   Where:
+                        ///      - distance(i,j) is the distance between Node[i] and Node[j] (or the weigth of the edge, or 1 if edges are not labeled)
+
+  bool shorted;         /// True if Floyd-Warshall Algorithm has been applied
+
+  spgk_input_t(size_t num_nodes_, size_t data_size_);
   ~spgk_input_t();
+
+  void floyd_warshall();
 };
 
 // Shortest Path Graph Kernel: sequential version of this code will be provided
 float SPGK(spgk_input_t * in_1, spgk_input_t * in_2);
+
+#endif /* __SPKG_HPP__ */
 
