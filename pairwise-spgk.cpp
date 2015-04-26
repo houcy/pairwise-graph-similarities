@@ -44,8 +44,7 @@ struct similarity_matrix_t {
 similarity_matrix_t * compare_CG(const std::string & path, const std::string & cg_1, const std::string & cg_2) {
   similarity_matrix_t * res = new similarity_matrix_t(path, cg_1, cg_2);
 
-  // [Phase 2] Distribute using MPI
-  // [Phase 3.a] Load balance distributed computations
+  // [Phase 3] Distribute using MPI, load balance distributed computations
   for (int i = 0; i < res->labels_1.size(); i++) {
     for (int j = 0; j < res->labels_2.size(); j++) {
       std::map<std::string, size_t> instruction_dictionary; // TODO Fill it!!! (Start with a global dictionnary containing all 745 instructions)

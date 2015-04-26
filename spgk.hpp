@@ -32,9 +32,14 @@ struct spgk_input_t {
 
   void floyd_warshall();
 
-  void randomize();
+  void randomize(size_t prob_edges_over_1000);
 
   void print(std::ostream & out);
+  void print_features(std::ostream & out);
+  void print_adjacency(std::ostream & out);
+
+  void toDot(char * file);
+  void toDot(std::ostream & out);
 };
 
 // Shortest Path Graph Kernel: sequential version of this code will be provided

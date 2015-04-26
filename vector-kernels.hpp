@@ -4,9 +4,8 @@
 
 #include <cstddef>
 
-float  gaussian_kernel(float * n_1, float * n_2, size_t n);
-float intersect_kernel(float * n_1, float * n_2, size_t n);
-float      drac_kernel(float * n_1, float * n_2, size_t n);
+float  gaussian_kernel(float * n_1, float * n_2, size_t n, float param = 10000);
+float intersect_kernel(float * n_1, float * n_2, size_t n, float param = 0);
 
 #endif /* __VECTOR_KERNELS_HPP__ */
 

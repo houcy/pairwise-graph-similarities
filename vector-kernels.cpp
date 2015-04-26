@@ -1,21 +1,21 @@
 
 #include "vector-kernels.hpp"
 
-float gaussian_kernel(float * n_1, float * n_2, size_t n) {
+#include <cmath>
+
+float gaussian_kernel(float * n_1, float * n_2, size_t n, float param) {
   float res = 0;
-  // TODO
-  return res;
+  for (size_t i = 0; i < n; i++) {
+    float diff = n_1[i] - n_2[i];
+    res += (diff * diff);
+  }
+  return expf(-res/param);
 }
 
-float intersect_kernel(float * n_1, float * n_2, size_t n) {
+float intersect_kernel(float * n_1, float * n_2, size_t n, float param) {
   float res = 0;
-  // TODO
-  return res;
-}
-
-float drac_kernel(float * n_1, float * n_2, size_t n) {
-  float res = 0;
-  // TODO
+  for (size_t i = 0; i < n; i++)
+    res += fmin(n_1[i], n_2[i]);
   return res;
 }
 

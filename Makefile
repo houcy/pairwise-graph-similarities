@@ -7,6 +7,7 @@ check: test-spgk
 clean:
 	rm -f pairwise-spgk.o test-spgk.o spgk.o vector-kernels.o
 	rm -f test-spgk pairwise-spgk
+	rm -f *.dot *.svg
 
 test-spgk: test-spgk.o spgk.o vector-kernels.o
 	c++ vector-kernels.o spgk.o test-spgk.o -o test-spgk
