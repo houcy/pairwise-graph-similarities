@@ -11,9 +11,9 @@
 
 #include <cassert>
 
+/// [Phase 2] Parallelize using intranode parallelism: OpenMP, OpenACC, CUDA, OpenCL, ....
 void spgk_input_t::floyd_warshall() {
   if (!shorted) {
-    // [Phase 2.b] Parallelize using intranode parallelism: OpenMP, OpenACC, CUDA, OpenCL, ....
     for (size_t k = 0; k < num_nodes; k++)
       for (size_t i = 0; i < num_nodes; i++)
         for (size_t j = 0; j < num_nodes; j++)
@@ -24,7 +24,7 @@ void spgk_input_t::floyd_warshall() {
   }
 }
 
-// Naive implementation of the Shortest Path Graph Kernel
+/// [Phase 2] Parallelize using intranode parallelism: OpenMP, OpenACC, CUDA, OpenCL, ....
 float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
   assert(in_1->features_size == in_2->features_size);
   const size_t features_size = in_1->features_size;
@@ -35,7 +35,6 @@ float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_par
   float res = 0;
   size_t i_1, j_1, i_2, j_2;
 
-  // [Phase 2.a] Parallelize using intranode parallelism: OpenMP, OpenACC, CUDA, OpenCL, ....
   for (i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
     for (j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
 

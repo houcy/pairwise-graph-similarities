@@ -5,12 +5,14 @@
 
 #include <iostream>
 
-int main(int argc, char ** argv) {
-  size_t n1 = 1000;
-  size_t n2 = 1000;
-  size_t n  = 50;
+#include <cstdlib>
 
-  size_t prob_edges_over_1000 = 20;
+int main(int argc, char ** argv) {
+  size_t n1 = argc > 1 ? atoi(argv[1]) : 100;
+  size_t n2 = argc > 2 ? atoi(argv[2]) : 100;
+  size_t n  = argc > 3 ? atoi(argv[3]) :  50;
+
+  size_t prob_edges_over_1000 = argc > 4 ? atoi(argv[4]) : 20;
 
   my_timer_t timer = my_timer_build();
 

@@ -5,7 +5,7 @@ In this project, we want to compare the node of two nested graphs.
 These graphs are Call Graph (CG): Vertices are Routines and Edges represent calls from one Routine to another.
 In these CG, the Routines are Control Flow Graph: Vertices are (unbreakable) sequences of instructions (called blocks)
 and the Edges represents the flow from on block to another (including jump instructions).
-Given two CGs, we want to compare the Routines that composed ldtuihem.
+Given two CGs, we want to compare the Routines that composed them.
 The goal is to find the most similar routines between two CG.
 
 The Shortest Path Graph Kernel (SPGK) is an algorithm used to measure similarities between graphs.
@@ -19,9 +19,14 @@ and (2) it compares these shortest paths pairwise and sums the results.
 We provide a sequential (naive) implementation of SPGK and the skeleton of the pairwise comparaison.
  - vector-kernels.hpp and vector-kernels.cpp contain kernels used to measure the similarities between vectors
  - spkg.hpp and spkg.cpp contain the naive implementation of Shortest Path Graph Kernel
+ - pairwise-similarity.hpp and pairwise-similarity.cpp contain the implementation of the pairwise comparaison of the CFG composing two CG
+
  - test-spgk.cpp builds two random graphs and applies SPGK on them.
- - pairwise-spgk.cpp is a skeletons of the application that will load two CGs and compares their CFGs pairwise
+ - pairwise-spgk.cpp: main for the application.
+
+ - graph-loader.hpp and graph-loader.cpp take care of reading the JSON file into the apps data-structures
  - jsonxx.hpp and jsonxx.cpp are a library to read/write JSON representations. See [https://github.com/hjiang/jsonxx](https://github.com/hjiang/jsonxx).
+ - timer.h and timer.c provide a precise timer
 
 ## The phases of the project
 

@@ -1,0 +1,6 @@
+samples/
+pairwise-spgk
+test-spgk
+*.o
+*.dot
+*.svg
