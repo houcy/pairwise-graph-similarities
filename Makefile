@@ -1,9 +1,12 @@
 
-DEBUG_FLAGS=-Wall -g -O0
+DEBUG_FLAGS=-Wall -g -O0 -pg
 
-all: test-spgk pairwise-spgk
+all: test-cfg test-spgk pairwise-spgk
 
-check: check-spgk check-pairwise
+check: check-cfg check-spgk check-pairwise
+
+check-cfg: test-cfg
+	./test-cfg samples/0BZQIJak6Pu2tyAXfrzR/0BZQIJak6Pu2tyAXfrzR-sub_41F46A.json samples/FdCMeDTY76jcz1EpqLhQ/FdCMeDTY76jcz1EpqLhQ-sub_4E671E.json
 
 check-spgk: test-spgk
 	./test-spgk 10 10 5 500 # 10 nodes per graph, 5 features per node, and 50% chance for an edge to exist
@@ -15,8 +18,11 @@ samples: samples.tgz
 	tar xzf samples.tgz
 
 clean:
-	rm -f test-spgk pairwise-spgk
+	rm -f test-cfg test-spgk pairwise-spgk
 	rm -f *.o *.dot *.svg
+
+test-cfg: test-cfg.o spgk.o vector-kernels.o timer.o graph-loader.o jsonxx.o
+	c++ -lrt vector-kernels.o spgk.o timer.o test-cfg.o graph-loader.o jsonxx.o -o test-cfg
 
 test-spgk: test-spgk.o spgk.o vector-kernels.o timer.o
 	c++ -lrt vector-kernels.o spgk.o timer.o test-spgk.o -o test-spgk
@@ -29,6 +35,9 @@ pairwise-spgk.o: pairwise-spgk.cpp spgk.hpp
 
 test-spgk.o: test-spgk.cpp spgk.hpp timer.h
 	c++ $(DEBUG_FLAGS) -c test-spgk.cpp -o test-spgk.o
+
+test-cfg.o: test-cfg.cpp spgk.hpp timer.h
+	c++ $(DEBUG_FLAGS) -c test-cfg.cpp -o test-cfg.o
 
 pairwise-similarity.o: pairwise-similarity.cpp pairwise-similarity.hpp
 	c++ $(DEBUG_FLAGS) -c pairwise-similarity.cpp -o pairwise-similarity.o
