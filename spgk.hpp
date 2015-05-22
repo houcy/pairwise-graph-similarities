@@ -40,6 +40,8 @@ struct spgk_input_t {
 
   void toDot(char * file);
   void toDot(std::ostream & out);
+  void getStats(std::ostream & out);
+  size_t getNumEdges();
 };
 
 // Shortest Path Graph Kernel: sequential version of this code will be provided

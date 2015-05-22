@@ -1,14 +1,9 @@
-
 #include "spgk.hpp"
 #include "graph-loader.hpp"
-
 #include "timer.h"
-
 #include <iostream>
 #include <fstream>
-
 #include <cstdlib>
-
 #include <cassert>
 
 int main(int argc, char ** argv) {
@@ -29,6 +24,8 @@ int main(int argc, char ** argv) {
   spgk_input_t * cfg_0 = loadCFG(argv[1], instruction_dictionary);
   spgk_input_t * cfg_1 = loadCFG(argv[2], instruction_dictionary);
 
+  cfg_0->toDot(std::cout);
+
   my_timer_t timer = my_timer_build();
 
   my_timer_start(timer);
@@ -36,7 +33,7 @@ int main(int argc, char ** argv) {
   my_timer_stop(timer);
   my_timer_delta(timer);
   std::cout << "CFG[0]::floyd_warshall() (in " << timer->delta << "ms)" << std::endl;
-
+  
   my_timer_start(timer);
   cfg_1->floyd_warshall();
   my_timer_stop(timer);
