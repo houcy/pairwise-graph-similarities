@@ -31,19 +31,28 @@ spgk_input_t * loadCFG(const std::string & cfg_file, const std::map<std::string,
     float ** adjacency = new float*[numBlocks];
     std::map<std::string, int> blockMap;
 
+
+    //populate features array
     for(size_t i = 0; i<numBlocks;i++)
     {
         features[i] = new float[featureSize]();
         Array instructs = blocks.get<Object>(i).get<Array>("instructions");
         std::string tag = blocks.get<Object>(i).get<String>("tag");
         blockMap[tag] = i;
+
+
         for(size_t j = 0; j<instructs.size();j++)
         {
             std::cout << "before" << std::endl;
-            std::string instruct = instructs.get<String>(j);
-            std::cout << instructs.get<String>(j)  << " instruct" << std::endl;
+            // std::string instruct = instructs.get<Object>(j).json();
+            // std::cout << instruct  << " instruct" << std::endl;
+
+            std::string instruct = instructs.get<Object>(j).get<String>("str");
+            std::cout << instruct << std::endl;
+
             if(instruct.find(" ") == std::string::npos);
             else instruct = instruct.substr(0,instruct.find(" "));
+
             int featureIndex = instruction_dictionary.find(instruct)->second;
             features[i][featureIndex]++;
         }
@@ -54,6 +63,7 @@ spgk_input_t * loadCFG(const std::string & cfg_file, const std::map<std::string,
 
 
     }
+    //populate adjacency matrix
     for(size_t n = 0; n < numBlocks; n++)
     {
       adjacency[n][n] = 0;
@@ -70,10 +80,14 @@ spgk_input_t * loadCFG(const std::string & cfg_file, const std::map<std::string,
     }
     res->features = features;
     res->adjacency = adjacency;
-//    for(size_t i = 0;i < res->num_nodes;i++){
-//        for(size_t j = 0;i< res->num_nodes;j++){
-//        }
-//    }
+  //  for(size_t i = 0;i < res->num_nodes;i++){
+  //    std::cout << "features at i = " << i << std::endl;
+  //      for(size_t j = 0;j< featureSize;j++){
+  //        if (features[i][j] != 0){
+  //        std::cout << features[i][j] << std::endl;
+  //      }
+  //    }
+  //  }
   return res;
 }
 
