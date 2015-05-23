@@ -1,6 +1,7 @@
 samples/
 pairwise-spgk
 test-spgk
+test-cfg
 *.o
 *.dot
 *.svg

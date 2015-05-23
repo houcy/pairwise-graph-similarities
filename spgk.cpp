@@ -209,7 +209,6 @@ size_t spgk_input_t::getNumEdges(){
 }
 
 void spgk_input_t::getStats(std::ostream & out){
-    out << "Num of Nodes = " << this->num_nodes;
-    out << " Num of Edges = " << getNumEdges() << std::endl;
+    out << "nodes:" << num_nodes << ", edges:" << getNumEdges();
 }
 

@@ -21,24 +21,43 @@ int main(int argc, char ** argv) {
   }
   file.close();
 
-  spgk_input_t * cfg_0 = loadCFG(argv[1], instruction_dictionary);
-  spgk_input_t * cfg_1 = loadCFG(argv[2], instruction_dictionary);
-
-  cfg_0->toDot(std::cout);
-  cfg_1->toDot(std::cout);
   my_timer_t timer = my_timer_build();
+  spgk_input_t * cfg_0;
+  spgk_input_t * cfg_1;
 
-  my_timer_start(timer);
-  cfg_0->floyd_warshall();
-  my_timer_stop(timer);
-  my_timer_delta(timer);
-  std::cout << "CFG[0]::floyd_warshall() (in " << timer->delta << "ms)" << std::endl;
+  {
+    cfg_0 = loadCFG(argv[1], instruction_dictionary);
+    std::cout << "CFG[0]::Stats[0] = ";
+    cfg_0->getStats(std::cout);
+    std::cout <<  std::endl;
 
-  my_timer_start(timer);
-  cfg_1->floyd_warshall();
-  my_timer_stop(timer);
-  my_timer_delta(timer);
-  std::cout << "CFG[1]::floyd_warshall() (in " << timer->delta << "ms)" << std::endl;
+    my_timer_start(timer);
+    cfg_0->floyd_warshall();
+    my_timer_stop(timer);
+    my_timer_delta(timer);
+
+    std::cout << "CFG[0]::floyd_warshall() (in " << timer->delta << "ms)" << std::endl;
+    std::cout << "CFG[0]::Stats[1] = ";
+    cfg_0->getStats(std::cout);
+    std::cout << std::endl;
+  }
+
+  {
+    cfg_1 = loadCFG(argv[2], instruction_dictionary);
+    std::cout << "CFG[1]::Stats[0] = ";
+    cfg_1->getStats(std::cout);
+    std::cout << std::endl;
+
+    my_timer_start(timer);
+    cfg_1->floyd_warshall();
+    my_timer_stop(timer);
+    my_timer_delta(timer);
+
+    std::cout << "CFG[1]::floyd_warshall() (in " << timer->delta << "ms)" << std::endl;
+    std::cout << "CFG[1]::Stats[1] = ";
+    cfg_1->getStats(std::cout);
+    std::cout << std::endl;
+  }
 
   my_timer_start(timer);
   float spgk = SPGK(cfg_0, cfg_1);

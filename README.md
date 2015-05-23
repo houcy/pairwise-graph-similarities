@@ -84,10 +84,18 @@ make check
 Or:
 ```bash
 make
-./test-spkg
+./test-cfg samples/JuAyLarnUdx5cRYT1v7M/JuAyLarnUdx5cRYT1v7M-sub_1000ACF8.json samples/JuAyLarnUdx5cRYT1v7M/JuAyLarnUdx5cRYT1v7M-sub_10008E6C.json
 ```
-To render the graphs (graph 1 and 2, before and after applying Shortest Path):
-```bash
-for f in 1_before 1_after 2_before 2_after; do dot -Tsvg in_$f.dot -o in_$f.svg; done
+
+```
+LOADING CFG samples/JuAyLarnUdx5cRYT1v7M/JuAyLarnUdx5cRYT1v7M-sub_1000ACF8.json
+CFG[0]::Stats[0] = nodes:109, edges:164)
+CFG[0]::floyd_warshall() (in 6ms)
+CFG[0]::Stats[1] = nodes:109, edges:5820)
+LOADING CFG samples/JuAyLarnUdx5cRYT1v7M/JuAyLarnUdx5cRYT1v7M-sub_10008E6C.json
+CFG[1]::Stats[0] = nodes:100, edges:147)
+CFG[1]::floyd_warshall() (in 5ms)
+CFG[1]::Stats[1] = nodes:100, edges:3521)
+SPGK(CFG[0], CFG[1]) = 7.37608e+06 (in 20453ms)
 ```
 
