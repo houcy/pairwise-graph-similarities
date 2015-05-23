@@ -108,9 +108,13 @@ void loadCG(const std::string & cg_file, std::vector<std::string> & labels) {
   // std::cout << "GOT ROUTINES" << std::endl;
 
   for(size_t i = 0; i < numRtns; i++){
-    std::string label = routines.get<Object>(i).get<String>("label");
-    // std::cout << label << std::endl;
 
-    labels.push_back(label);
+    std::string type = routines.get<Object>(i).get<String>("type");
+    if(type != "library" && type != "indirect"){
+      std::string label = routines.get<Object>(i).get<String>("label");
+      // std::cout << label << std::endl;
+
+      labels.push_back(label);
+    }
   }
 }
