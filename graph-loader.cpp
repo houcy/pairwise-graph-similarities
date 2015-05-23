@@ -51,7 +51,6 @@ spgk_input_t * loadCFG(const std::string & cfg_file, const std::map<std::string,
             else instruct = instruct.substr(0,instruct.find(" "));
 
             int featureIndex = instruction_dictionary.find(instruct)->second;
-            std::cout << "i " << i << " featureIndex " << featureIndex << std::endl;
             features[i][featureIndex]++;
         }
         float inf = std::numeric_limits<float>::infinity();

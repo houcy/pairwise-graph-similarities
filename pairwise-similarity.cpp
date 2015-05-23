@@ -4,6 +4,7 @@
 #include "spgk.hpp"
 
 #include <cassert>
+#include <fstream>
 
 /// [Phase 3] Distribute using MPI, load balance distributed computations
 void SimilarityMatrix::evaluate() {
@@ -16,9 +17,15 @@ void SimilarityMatrix::evaluate() {
 
 void SimilarityMatrix::loadFeatureNames(const std::string & feature_name_file) {
   // TODO Replace dummy code. Read file: one instruction name per line and store in feature_dictionary
-  feature_dictionary.insert(std::pair<std::string, size_t>("a", 1));
-  feature_dictionary.insert(std::pair<std::string, size_t>("b", 3));
-  feature_dictionary.insert(std::pair<std::string, size_t>("c", 2));
+  std::string line;
+  std::ifstream file;
+  size_t cnt = 0;
+  file.open(feature_name_file.c_str());
+  while(!file.eof()) {
+    std::getline(file, line);
+    feature_dictionary.insert(std::pair<std::string, size_t>(line, cnt++));
+  }
+  file.close();
 }
 
 void SimilarityMatrix::dump(std::ostream & out) const {
