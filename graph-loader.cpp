@@ -13,11 +13,12 @@ using namespace jsonxx;
 // [Phase 0] Read JSON of CFG and return an input formated for the Shortest Path Graph Kernel
 //           Need to transforme the sequence of instruction into an array => requires dictionary of the instructions in all CFG of both CG !!!!
 spgk_input_t * loadCFG(const std::string & cfg_file, const std::map<std::string, size_t> & instruction_dictionary) {
+  std::cout << "LOADING CFG " << cfg_file << std::endl;
 
     std::ifstream t(cfg_file.c_str());
     std::stringstream buffer;
     buffer << t.rdbuf();
-    //std::cout << buffer.str();
+    // std::cout << "BUFFER: " << buffer.str() << std::endl;
 
     Object o;
     o.parse(buffer.str());
@@ -43,17 +44,14 @@ spgk_input_t * loadCFG(const std::string & cfg_file, const std::map<std::string,
 
         for(size_t j = 0; j<instructs.size();j++)
         {
-            std::cout << "before" << std::endl;
-            // std::string instruct = instructs.get<Object>(j).json();
-            // std::cout << instruct  << " instruct" << std::endl;
 
             std::string instruct = instructs.get<Object>(j).get<String>("str");
-            std::cout << instruct << std::endl;
 
             if(instruct.find(" ") == std::string::npos);
             else instruct = instruct.substr(0,instruct.find(" "));
 
             int featureIndex = instruction_dictionary.find(instruct)->second;
+            std::cout << "i " << i << " featureIndex " << featureIndex << std::endl;
             features[i][featureIndex]++;
         }
         float inf = std::numeric_limits<float>::infinity();
@@ -94,7 +92,26 @@ spgk_input_t * loadCFG(const std::string & cfg_file, const std::map<std::string,
 // [Phase 0] Read JSON representation of CG and fill the list of node (label of the CFG blocks)
 void loadCG(const std::string & cg_file, std::vector<std::string> & labels) {
   // TODO Replace- dummy code
-  labels.push_back("l1");
-  labels.push_back("l2");
-  labels.push_back("l3");
+  // std::cout << "LOADING CG " << cg_file << std::endl;
+  std::ifstream t(cg_file.c_str());
+  // std::cout << "IFSTREAM " << std::endl;
+  std::stringstream buffer;
+  buffer << t.rdbuf();
+  // std::cout << "BUFFER: " << buffer.str() << std::endl;
+
+  Object o;
+  o.parse(buffer.str());
+  // std::cout << "PARSED JSON: " << o.json() << std::endl;
+
+  Array routines = o.get<Array>("routines");
+  int numRtns = routines.size();
+
+  // std::cout << "GOT ROUTINES" << std::endl;
+
+  for(size_t i = 0; i < numRtns; i++){
+    std::string label = routines.get<Object>(i).get<String>("label");
+    // std::cout << label << std::endl;
+
+    labels.push_back(label);
+  }
 }

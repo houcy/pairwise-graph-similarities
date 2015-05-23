@@ -11,7 +11,7 @@ void SimilarityMatrix::evaluate() {
     for (int j = 0; j < labels_2.size(); j++) {
       similarity_matrix[i][j] = SPGK(getCFG(cg_1, labels_1[i]), getCFG(cg_2, labels_2[j]));
     }
-  }  
+  }
 }
 
 void SimilarityMatrix::loadFeatureNames(const std::string & feature_name_file) {
@@ -85,10 +85,10 @@ SimilarityMatrix::SimilarityMatrix(const std::string & cg_1_, const std::string 
   feature_dictionary(),
   routines_map()
 {
-  loadCG(path + "/" + cg_1 +  + "/" + cg_1 + "-no-blocks.json", labels_1);
+  loadCG(path + "/" + cg_1 +  + "/" + cg_1 + "-no-block.json", labels_1);
   sort_1();
 
-  loadCG(path + "/" + cg_2 +  + "/" + cg_2 + "-no-blocks.json", labels_2);
+  loadCG(path + "/" + cg_2 +  + "/" + cg_2 + "-no-block.json", labels_2);
   sort_2();
 
   loadFeatureNames(feature_file);
@@ -116,4 +116,3 @@ const std::vector<std::string> & SimilarityMatrix::getLabelsCG_1() const { retur
 const std::vector<std::string> & SimilarityMatrix::getLabelsCG_2() const { return labels_2; }
 float ** const SimilarityMatrix::getSimilarities() const { return similarity_matrix; }
 const float SimilarityMatrix::getSimilarity(const std::string & label_1, const std::string & label_2) const { return similarity_matrix[getIndex_1(label_1)][getIndex_2(label_2)]; }
-
