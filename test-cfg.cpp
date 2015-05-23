@@ -25,7 +25,7 @@ int main(int argc, char ** argv) {
   spgk_input_t * cfg_1 = loadCFG(argv[2], instruction_dictionary);
 
   cfg_0->toDot(std::cout);
-
+  cfg_1->toDot(std::cout);
   my_timer_t timer = my_timer_build();
 
   my_timer_start(timer);
@@ -33,7 +33,7 @@ int main(int argc, char ** argv) {
   my_timer_stop(timer);
   my_timer_delta(timer);
   std::cout << "CFG[0]::floyd_warshall() (in " << timer->delta << "ms)" << std::endl;
-  
+
   my_timer_start(timer);
   cfg_1->floyd_warshall();
   my_timer_stop(timer);
@@ -44,9 +44,8 @@ int main(int argc, char ** argv) {
   float spgk = SPGK(cfg_0, cfg_1);
   my_timer_stop(timer);
   my_timer_delta(timer);
-  
+
   std::cout << "SPGK(CFG[0], CFG[1]) = " << spgk << " (in " << timer->delta << "ms)" << std::endl;
 
   return 0;
 }
-
