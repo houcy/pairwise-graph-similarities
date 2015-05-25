@@ -1,4 +1,3 @@
-
 #include "spgk.hpp"
 #include "vector-kernels.hpp"
 

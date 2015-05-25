@@ -1,5 +1,6 @@
 
 #include "vector-kernels.hpp"
+#include <omp.h>
 
 #include <cmath>
 

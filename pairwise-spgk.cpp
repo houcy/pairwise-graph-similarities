@@ -1,6 +1,9 @@
 
 #include "pairwise-similarity.hpp"
 #include "graph-loader.hpp"
+#include "timer.h"
+#include <iostream>
+#include <cstdlib>
 
 #include <cassert>
 
@@ -14,8 +17,13 @@ int main(int argc, char ** argv) {
 
   SimilarityMatrix similarity_matrix(cg_1, cg_2, feature_file, path);
 
-  similarity_matrix.evaluate();
+  my_timer_t timer = my_timer_build();
 
+  my_timer_start(timer);
+  similarity_matrix.evaluate();
+  my_timer_stop(timer);
+  my_timer_delta(timer);
+  std::cout << timer->delta << std::endl;
   similarity_matrix.printHTML(std::cout);
 
   return 0;

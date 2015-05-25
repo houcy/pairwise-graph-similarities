@@ -1,5 +1,5 @@
 
-DEBUG_FLAGS=-Wall -g -O0 -pg
+DEBUG_FLAGS=-Wall -g -O0 -pg -fopenmp 
 
 all: test-cfg test-spgk pairwise-spgk
 
@@ -22,13 +22,13 @@ clean:
 	rm -f *.o *.dot *.svg
 
 test-cfg: test-cfg.o spgk.o vector-kernels.o timer.o graph-loader.o jsonxx.o
-	c++ -lrt vector-kernels.o spgk.o timer.o test-cfg.o graph-loader.o jsonxx.o -o test-cfg
+	c++  $(DEBUG_FLAGS) -lrt vector-kernels.o spgk.o timer.o test-cfg.o graph-loader.o jsonxx.o -o test-cfg
 
 test-spgk: test-spgk.o spgk.o vector-kernels.o timer.o
-	c++ -lrt vector-kernels.o spgk.o timer.o test-spgk.o -o test-spgk
+	c++  $(DEBUG_FLAGS) -lrt vector-kernels.o spgk.o timer.o test-spgk.o -o test-spgk
 
-pairwise-spgk: pairwise-spgk.o spgk.o vector-kernels.o pairwise-similarity.o graph-loader.o jsonxx.o
-	c++ vector-kernels.o spgk.o jsonxx.o graph-loader.o pairwise-similarity.o pairwise-spgk.o -o pairwise-spgk
+pairwise-spgk: pairwise-spgk.o timer.o spgk.o vector-kernels.o pairwise-similarity.o graph-loader.o jsonxx.o
+	c++ $(DEBUG_FLAGS) vector-kernels.o timer.o spgk.o jsonxx.o graph-loader.o pairwise-similarity.o pairwise-spgk.o -o pairwise-spgk
 
 pairwise-spgk.o: pairwise-spgk.cpp spgk.hpp
 	c++ $(DEBUG_FLAGS) -c pairwise-spgk.cpp -o pairwise-spgk.o

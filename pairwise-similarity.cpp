@@ -1,4 +1,4 @@
-
+#include <omp.h>
 #include "pairwise-similarity.hpp"
 #include "graph-loader.hpp"
 #include "spgk.hpp"
@@ -9,7 +9,9 @@
 /// [Phase 3] Distribute using MPI, load balance distributed computations
 void SimilarityMatrix::evaluate() {
   for (int i = 0; i < labels_1.size(); i++) {
+    #pragma omp parallel for schedule(dynamic)
     for (int j = 0; j < labels_2.size(); j++) {
+      std::cout << "Pair "<< i<<"-" << j << " is being computed on Thread "<<omp_get_thread_num() <<std::endl;
       similarity_matrix[i][j] = SPGK(getCFG(cg_1, labels_1[i]), getCFG(cg_2, labels_2[j]));
     }
   }
