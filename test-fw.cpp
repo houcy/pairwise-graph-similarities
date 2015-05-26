@@ -35,7 +35,7 @@ int main(int argc, char ** argv) {
   my_timer_delta(timer);
 
   std::cout << "CFG::Stats[1]= ";
-  cfg_1->getStats(std::cout);
+  cfg->getStats(std::cout);
   std::cout << std::endl;
   std::cout << "CFG::floyd_warshall() " << timer->delta << std::endl;
 
