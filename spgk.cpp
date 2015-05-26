@@ -29,8 +29,78 @@ void spgk_input_t::floyd_warshall() {
 #elif OMP_FW == 0
 void spgk_input_t::floyd_warshall() {
   if (!shorted) {
+    #pragma omp parallel for
     for (size_t k = 0; k < num_nodes; k++)
       for (size_t i = 0; i < num_nodes; i++)
+        for (size_t j = 0; j < num_nodes; j++)
+          if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
+            adjacency[i][j] = adjacency[i][k] + adjacency[k][j];
+
+    shorted = true;
+  }
+}
+#elif OMP_FW == 1
+void spgk_input_t::floyd_warshall() {
+  if (!shorted) {
+    for (size_t k = 0; k < num_nodes; k++)
+    #pragma omp parallel for
+      for (size_t i = 0; i < num_nodes; i++)
+        for (size_t j = 0; j < num_nodes; j++)
+          if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
+            adjacency[i][j] = adjacency[i][k] + adjacency[k][j];
+
+    shorted = true;
+  }
+}
+#elif OMP_FW == 2
+void spgk_input_t::floyd_warshall() {
+  if (!shorted) {
+    for (size_t k = 0; k < num_nodes; k++)
+      for (size_t i = 0; i < num_nodes; i++)
+        #pragma omp parallel for
+        for (size_t j = 0; j < num_nodes; j++)
+          if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
+            adjacency[i][j] = adjacency[i][k] + adjacency[k][j];
+
+    shorted = true;
+  }
+}
+#elif OMP_FW == 3
+void spgk_input_t::floyd_warshall() {
+  if (!shorted) {
+    #pragma omp parallel for
+    for (size_t k = 0; k < num_nodes; k++)
+    #pragma omp parallel for
+      for (size_t i = 0; i < num_nodes; i++)
+        for (size_t j = 0; j < num_nodes; j++)
+          if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
+            adjacency[i][j] = adjacency[i][k] + adjacency[k][j];
+
+    shorted = true;
+  }
+}
+#elif OMP_FW == 4
+void spgk_input_t::floyd_warshall() {
+  if (!shorted) {
+    for (size_t k = 0; k < num_nodes; k++)
+    #pragma omp parallel for
+      for (size_t i = 0; i < num_nodes; i++)
+      #pragma omp parallel for
+        for (size_t j = 0; j < num_nodes; j++)
+          if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
+            adjacency[i][j] = adjacency[i][k] + adjacency[k][j];
+
+    shorted = true;
+  }
+}
+#elif OMP_FW == 5
+void spgk_input_t::floyd_warshall() {
+  if (!shorted) {
+    #pragma omp parallel for
+    for (size_t k = 0; k < num_nodes; k++)
+      #pragma omp parallel for
+      for (size_t i = 0; i < num_nodes; i++)
+        #pragma omp parallel for
         for (size_t j = 0; j < num_nodes; j++)
           if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
             adjacency[i][j] = adjacency[i][k] + adjacency[k][j];
@@ -93,14 +163,14 @@ float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_par
   float res = 0;
   size_t i_1, j_1, i_2, j_2;
   float similarity_edge,similarity_source,similarity_sink;
-  #pragma omp parallel for schedule(dynamic) reduction(+:res) private(i_1,i_2,j_2,j_1,similarity_source,similarity_edge,similarity_sink) 
+  #pragma omp parallel for schedule(dynamic) reduction(+:res) private(i_1,i_2,j_2,j_1,similarity_source,similarity_edge,similarity_sink)
   for (i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
     for (j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
 
       if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
 
       for (i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
-       // #pragma omp parallel for schedule(dynamic) reduction(+:res) 
+       // #pragma omp parallel for schedule(dynamic) reduction(+:res)
         for (j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
 
           if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
@@ -182,7 +252,7 @@ void spgk_input_t::print_adjacency(std::ostream & out) {
     out << "adjacency[" << std::setw(2) << i << "] : ";
     for (size_t j = 0; j < num_nodes; j++)
       std::cout << "|" << std::setw(3) << adjacency[i][j];
-    out << "|" << std::endl; 
+    out << "|" << std::endl;
   }
 }
 
@@ -199,7 +269,7 @@ void spgk_input_t::toDot(std::ostream & out) {
     for (size_t j = 0; j < num_nodes; j++)
       if (adjacency[i][j] != 0 && adjacency[i][j] != std::numeric_limits<float>::infinity())
         out << "  " << i << " -> " << j << " [label=\"" << adjacency[i][j] << "\"];" << std::endl;
-  out << "}" << std::endl; 
+  out << "}" << std::endl;
 }
 
 size_t spgk_input_t::getNumEdges(){
@@ -216,4 +286,3 @@ size_t spgk_input_t::getNumEdges(){
 void spgk_input_t::getStats(std::ostream & out){
     out << "nodes:" << num_nodes << ", edges:" << getNumEdges();
 }
-
