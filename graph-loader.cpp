@@ -13,7 +13,7 @@ using namespace jsonxx;
 // [Phase 0] Read JSON of CFG and return an input formated for the Shortest Path Graph Kernel
 //           Need to transforme the sequence of instruction into an array => requires dictionary of the instructions in all CFG of both CG !!!!
 spgk_input_t * loadCFG(const std::string & cfg_file, const std::map<std::string, size_t> & instruction_dictionary) {
-    std::cout << "LOADING CFG " << cfg_file << std::endl;
+    //std::cout << "LOADING CFG " << cfg_file << std::endl;
 
     std::ifstream t(cfg_file.c_str());
     std::stringstream buffer;
@@ -91,7 +91,7 @@ spgk_input_t * loadCFG(const std::string & cfg_file, const std::map<std::string,
 // [Phase 0] Read JSON representation of CG and fill the list of node (label of the CFG blocks)
 void loadCG(const std::string & cg_file, std::vector<std::string> & labels) {
   // TODO Replace- dummy code
-  std::cout << "LOADING CG " << cg_file << std::endl;
+  //std::cout << "LOADING CG " << cg_file << std::endl;
   std::ifstream t(cg_file.c_str());
   // std::cout << "IFSTREAM " << std::endl;
   std::stringstream buffer;
