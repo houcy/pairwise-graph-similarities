@@ -5,3 +5,10 @@ test-cfg
 *.o
 *.dot
 *.svg
+fw-time*
+test-fw
+testdatafw.dat
+3dfw.dat
+gmon.out
+logs/*
+warshall_heat.png

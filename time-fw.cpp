@@ -1,7 +1,6 @@
 #include "spgk.hpp"
 #include "graph-loader.hpp"
 #include "timer.h"
-#include <iostream>
 #include <fstream>
 #include <cstdlib>
 #include <cassert>
@@ -22,8 +21,8 @@ int main(int argc, char ** argv) {
   file.close();
 
   my_timer_t timer = my_timer_build();
-
   spgk_input_t * cfg;
+
   cfg = loadCFG(argv[1], instruction_dictionary);
 
   my_timer_start(timer);

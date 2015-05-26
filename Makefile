@@ -1,13 +1,13 @@
 
 DEBUG_FLAGS=-Wall -g -O0 -pg -fopenmp 
 
-all: test-cfg test-spgk pairwise-spgk test-fw time-fw
+all: test-cfg test-spgk pairwise-spgk test-fw fw-time
 
-warshaw: time-fw time-fw-0 time-fw-1 time-fw-2 time-fw-3 time-fw-4 time-fw-5
-plot-warshaw-small: time-fw time-fw-0 time-fw-1 time-fw-2 time-fw-3 time-fw-4 time-fw-5
+warshall: fw-time fw-time-0 fw-time-1 fw-time-2 fw-time-3 fw-time-4 fw-time-5
+plot-warshall-small: fw-time fw-time-0 fw-time-1 fw-time-2 fw-time-3 fw-time-4 fw-time-5
 	./genfw.sh samples/FdCMeDTY76jcz1EpqLhQ/FdCMeDTY76jcz1EpqLhQ-rtn_3.json
 
-plot-warshaw: time-fw time-fw-0 time-fw-1 time-fw-2 time-fw-3 time-fw-4 time-fw-5
+plot-warshall: fw-time fw-time-0 fw-time-1 fw-time-2 fw-time-3 fw-time-4 fw-time-5
 	./genfw.sh samples/85lCRjIZmV670qYBJSNo/85lCRjIZmV670qYBJSNo-rtn_80.json
 
 check: check-cfg check-spgk check-pairwise test-fw
@@ -30,30 +30,31 @@ samples: samples.tgz
 clean:
 	rm -f test-cfg test-spgk pairwise-spgk
 	rm -f *.o *.dot *.svg
+	rm -f fw-time* warshall_heat.png gmon.out 3dfw.dat testdatafw.dat test-fw
 
 test-fw: test-fw.o spgk.o graph-loader.o timer.o vector-kernels.o 
 	c++ $(DEBUG_FLAGS) -lrt vector-kernels.o test-fw.o spgk.o graph-loader.o jsonxx.o timer.o -o test-fw
 
-time-fw: time-fw.o spgk.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(DEBUG_FLAGS) -lrt vector-kernels.o time-fw.o spgk.o graph-loader.o jsonxx.o timer.o -o time-fw
+fw-time: time-fw.o spgk.o graph-loader.o timer.o vector-kernels.o 
+	c++ $(DEBUG_FLAGS) -lrt vector-kernels.o time-fw.o spgk.o graph-loader.o jsonxx.o timer.o -o fw-time
 
-time-fw-0: time-fw.o spgk0.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(DEBUG_FLAGS) -DOMP_FW=0 -lrt vector-kernels.o time-fw.o spgk0.o graph-loader.o jsonxx.o timer.o -o time-fw-0
+fw-time-0: time-fw.o spgk0.o graph-loader.o timer.o vector-kernels.o 
+	c++ $(DEBUG_FLAGS) -DOMP_FW=0 -lrt vector-kernels.o time-fw.o spgk0.o graph-loader.o jsonxx.o timer.o -o fw-time-0
 
-time-fw-1: time-fw.o spgk1.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(DEBUG_FLAGS) -DOMP_FW=1 -lrt vector-kernels.o time-fw.o spgk1.o graph-loader.o jsonxx.o timer.o -o time-fw-1
+fw-time-1: time-fw.o spgk1.o graph-loader.o timer.o vector-kernels.o 
+	c++ $(DEBUG_FLAGS) -DOMP_FW=1 -lrt vector-kernels.o time-fw.o spgk1.o graph-loader.o jsonxx.o timer.o -o fw-time-1
 
-time-fw-2: time-fw.o spgk2.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(DEBUG_FLAGS) -DOMP_FW=2 -lrt vector-kernels.o time-fw.o spgk2.o graph-loader.o jsonxx.o timer.o -o time-fw-2
+fw-time-2: time-fw.o spgk2.o graph-loader.o timer.o vector-kernels.o 
+	c++ $(DEBUG_FLAGS) -DOMP_FW=2 -lrt vector-kernels.o time-fw.o spgk2.o graph-loader.o jsonxx.o timer.o -o fw-time-2
 
-time-fw-3: time-fw.o spgk3.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(DEBUG_FLAGS) -DOMP_FW=3 -lrt vector-kernels.o time-fw.o spgk3.o graph-loader.o jsonxx.o timer.o -o time-fw-3
+fw-time-3: time-fw.o spgk3.o graph-loader.o timer.o vector-kernels.o 
+	c++ $(DEBUG_FLAGS) -DOMP_FW=3 -lrt vector-kernels.o time-fw.o spgk3.o graph-loader.o jsonxx.o timer.o -o fw-time-3
 
-time-fw-4: time-fw.o spgk4.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(DEBUG_FLAGS) -DOMP_FW=4 -lrt vector-kernels.o time-fw.o spgk4.o graph-loader.o jsonxx.o timer.o -o time-fw-4
+fw-time-4: time-fw.o spgk4.o graph-loader.o timer.o vector-kernels.o 
+	c++ $(DEBUG_FLAGS) -DOMP_FW=4 -lrt vector-kernels.o time-fw.o spgk4.o graph-loader.o jsonxx.o timer.o -o fw-time-4
 
-time-fw-5: time-fw.o spgk5.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(DEBUG_FLAGS) -DOMP_FW=5 -lrt vector-kernels.o time-fw.o spgk5.o graph-loader.o jsonxx.o timer.o -o time-fw-5
+fw-time-5: time-fw.o spgk5.o graph-loader.o timer.o vector-kernels.o 
+	c++ $(DEBUG_FLAGS) -DOMP_FW=5 -lrt vector-kernels.o time-fw.o spgk5.o graph-loader.o jsonxx.o timer.o -o fw-time-5
 
 test-cfg: test-cfg.o spgk.o vector-kernels.o timer.o graph-loader.o jsonxx.o
 	c++  $(DEBUG_FLAGS) -lrt vector-kernels.o spgk.o timer.o test-cfg.o graph-loader.o jsonxx.o -o test-cfg
