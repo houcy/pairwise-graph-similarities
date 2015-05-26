@@ -4,6 +4,11 @@ DEBUG_FLAGS=-Wall -g -O0 -pg -fopenmp
 all: test-cfg test-spgk pairwise-spgk test-fw time-fw
 
 warshaw: time-fw time-fw-0 time-fw-1 time-fw-2 time-fw-3 time-fw-4 time-fw-5
+plot-warshaw-small: time-fw time-fw-0 time-fw-1 time-fw-2 time-fw-3 time-fw-4 time-fw-5
+	./genfw.sh samples/FdCMeDTY76jcz1EpqLhQ/FdCMeDTY76jcz1EpqLhQ-rtn_3.json
+
+plot-warshaw: time-fw time-fw-0 time-fw-1 time-fw-2 time-fw-3 time-fw-4 time-fw-5
+	./genfw.sh samples/85lCRjIZmV670qYBJSNo/85lCRjIZmV670qYBJSNo-rtn_80.json
 
 check: check-cfg check-spgk check-pairwise test-fw
 
