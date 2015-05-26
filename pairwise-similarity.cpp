@@ -1,4 +1,3 @@
-#include <omp.h>
 #include "pairwise-similarity.hpp"
 #include "graph-loader.hpp"
 #include "spgk.hpp"
@@ -6,7 +5,6 @@
 #include <cassert>
 #include <fstream>
 
-#if !defined(OMP_DIST)
 /// [Phase 3] Distribute using MPI, load balance distributed computations
 void SimilarityMatrix::evaluate() {
   for (int i = 0; i < labels_1.size(); i++) {
@@ -15,18 +13,6 @@ void SimilarityMatrix::evaluate() {
     }
   }
 }
-#elif OMP_DIST==0
-void SimilarityMatrix::evaluate() {
-  for (int i = 0; i < labels_1.size(); i++) {
-    #pragma omp parallel for schedule(dynamic)
-    for (int j = 0; j < labels_2.size(); j++) {
-      similarity_matrix[i][j] = SPGK(getCFG(cg_1, labels_1[i]), getCFG(cg_2, labels_2[j]));
-    }
-  }
-}
-#else
-#error "error OMP_DIST"
-#endif
 
 void SimilarityMatrix::loadFeatureNames(const std::string & feature_name_file) {
   // TODO Replace dummy code. Read file: one instruction name per line and store in feature_dictionary

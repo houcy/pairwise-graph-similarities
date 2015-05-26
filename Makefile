@@ -1,5 +1,5 @@
 
-DEBUG_FLAGS=-Wall -g -O0 -pg 
+DEBUG_FLAGS=-Wall -g -O0 -pg -fopenmp 
 
 all: test-cfg test-spgk pairwise-spgk
 
