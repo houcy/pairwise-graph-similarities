@@ -6,4 +6,5 @@ do
  ./fwprof.sh $1 > testdatafw.dat
  ./averages.sh $i >> 3dfw.dat
 done
-gnuplot warshal.plot
+gnuplot warshall.plot
+rm testdatafw.dat
