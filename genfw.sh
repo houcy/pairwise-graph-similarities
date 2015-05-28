@@ -1,5 +1,5 @@
 #!/bin/bash
-RUNS=$4
+RUNS=$5
 FILES=spgkV/fw/exe/*
 threadmin=$2
 threadmax=$3
@@ -11,9 +11,9 @@ do
     do
         TEMP=''
         > tests/tempdata
-        for logb2thread in `seq $threadmin $threadmax`
+        for logb2thread in  $2 $3 $4
         do
-            THREADS=$(echo "2^$logb2thread" | bc)
+            THREADS=$logb2thread
             export OMP_NUM_THREADS=$THREADS
             > tempRow
             for runs in `seq 1 $RUNS`;
@@ -29,3 +29,4 @@ do
         cat tests/tempdata tests/$dir > temp && mv temp tests/$dir
     done < "$dir"
 done < "fwverMaster"
+rm tempRow

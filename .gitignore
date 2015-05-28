@@ -12,3 +12,4 @@ testdatafw.dat
 gmon.out
 logs/*
 warshall_heat.png
+tests/*
