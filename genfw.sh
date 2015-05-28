@@ -22,6 +22,7 @@ FILES=spgkV/fw/exe/*
 #rm testdatafw.dats=3
 
 logb2threadmax=3
+mkdir -p tests
 while IFS= read -r dir
 do
     > tests/$dir
