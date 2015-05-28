@@ -40,8 +40,11 @@ install:
 
 clean:
 	rm -f test-cfg test-spgk pairwise-spgk
-	rm -f *.o *.dot *.svg spgkV/*.ospgkV/*.bin 
+	rm -f *.o *.dot *.svg spgkV/* -r 
 	rm -f fw-time* warshall_heat.png gmon.out 3dfw.dat testdatafw.dat test-fw
+
+genFW: fw-time fw-time-ver
+	./genfw.sh samples/ADzc7SVJd1YE69kCZv5y/ADzc7SVJd1YE69kCZv5y-rtn_3.json
 
 test-fw: test-fw.o spgk.o graph-loader.o timer.o vector-kernels.o 
 	c++ $(FLAGS) -lrt vector-kernels.o test-fw.o spgk.o graph-loader.o jsonxx.o timer.o -o test-fw
@@ -97,8 +100,6 @@ graph-loader.o: graph-loader.cpp graph-loader.hpp vector-kernels.hpp jsonxx.hpp
 spgk.o: spgk.cpp spgk.hpp vector-kernels.hpp
 	c++ $(FLAGS) -c spgk.cpp -o spgk.o
 	
-NUM_SPGK: 
-
 spgkV.o: spgk.cpp spgk.hpp vector-kernels.hpp
 	$(foreach i,0 1, \
 		$(foreach j, 0 1, \
@@ -110,9 +111,7 @@ spgkV.o: spgk.cpp spgk.hpp vector-kernels.hpp
 		spgkV/spgk$(i)$(j)$(k)$(l)chunk_$(chunk).o ; \
 	)))))
 
-.PHONY: spgkFWX
-
-spgkFWX: spgk.cpp spgk.hpp vector-kernels.hpp FORCE 
+spgkFWX: spgk.cpp spgk.hpp vector-kernels.hpp 
 	$(foreach chunk,1 2 4 8 16 32 64, \
 		$(foreach fwv,0 1, \
 		$(foreach inner,0 1, \
@@ -125,4 +124,3 @@ vector-kernels.o: vector-kernels.cpp vector-kernels.hpp
 timer.o: timer.c timer.h
 	cc $(FLAGS) -c timer.c -o timer.o
 
-FORCE:

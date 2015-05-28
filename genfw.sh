@@ -27,14 +27,17 @@ do
     > tests/$dir
     while IFS= read -r file
     do
+        TEMP=''
+        > tests/tempdata
         for logb2thread in `seq 0 $logb2threadmax`
         do
             THREADS=$(echo "2^$logb2thread" | bc)
             export OMP_NUM_THREADS=$THREADS
-            ./spgkV/$dir/exe/$file $1 >> tests/$dir
+            ./spgkV/$dir/exe/$file $1 >> tests/tempdata
 
             echo "processing $file with $THREADS thread(s)"
         done
-        echo '' >> tests/$dir
+        echo '' >> tests/tempdata
+        cat tests/tempdata tests/$dir > temp && mv temp tests/$dir
     done < "$dir"
 done < "fwverMaster"
