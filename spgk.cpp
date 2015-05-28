@@ -101,6 +101,7 @@ float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_par
 
   return res;
 }
+//{i_1, j_1, i_2, j_2} DONE
 #elif OMP_SPGK == 1
 float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
   assert(in_1->features_size == in_2->features_size);
@@ -132,6 +133,745 @@ float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_par
 
   return res;
 }
+
+#elif OMP_SPGK == 2
+// i_1, j_1, j_2, i_2 DONE
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+      if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+          if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {i_1, i_2, j_1, j_2} DONE
+#elif OMP_SPGK == 3
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+        if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+          if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {i_1, i_2, j_2, j_1} DONE
+#elif OMP_SPGK == 4
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+        if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {i_1, j_2, j_1, i_2} DONE
+#elif OMP_SPGK == 5
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+        if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+          if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {i_1, j_2, i_2, j_1} DONE
+#elif OMP_SPGK == 6
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+        if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_1, i_1, i_2, j_2} DONE
+#elif OMP_SPGK == 7
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+      if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+          if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_1, i_1, j_2, i_2} DONE
+#elif OMP_SPGK == 8
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+      if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+          if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_1, i_2, i_1, j_2} DONE
+#elif OMP_SPGK == 9
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+        if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+          if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_1, i_2, j_2, i_1} DONE
+#elif OMP_SPGK == 10
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+        if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_1, j_2, i_1, i_2} DONE
+#elif OMP_SPGK == 11
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+        if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+          if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_1, j_2, i_2, i_1} DONE
+#elif OMP_SPGK == 12
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+        if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {i_2, i_1, j_1, j_2} DONE
+#elif OMP_SPGK == 13
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+        if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+          if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {i_2, i_1, j_2, j_1} DONE
+#elif OMP_SPGK == 14
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+        if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {i_2, j_1, i_1, j_2} DONE
+#elif OMP_SPGK == 15
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+        if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+          if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {i_2, j_1, j_2, i_1} DONE
+#elif OMP_SPGK == 16
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+        if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {i_2, j_2, i_1, j_1} DONE
+#elif OMP_SPGK == 17
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+  for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+    for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+      if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+      for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+        for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {i_2, j_2, j_1, i_1} DONE
+#elif OMP_SPGK == 18
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+  for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+    for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+      if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+      for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+        for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_2, i_1, j_1, i_2} DONE
+#elif OMP_SPGK == 19
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+        if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+          if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_2, i_1, i_2, j_1} DONE
+#elif OMP_SPGK == 20
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+        if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_2, j_1, i_1, i_2} DONE
+#elif OMP_SPGK == 21
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+        if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+          if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_2, j_1, i_2, i_1} DONE
+#elif OMP_SPGK == 22
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+        if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_2, i_2, i_1, j_1} DONE
+#elif OMP_SPGK == 23
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+      if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+// {j_2, i_2, j_1, i_1}
+#elif OMP_SPGK == 24
+float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
+  assert(in_1->features_size == in_2->features_size);
+  const size_t features_size = in_1->features_size;
+
+  in_1->floyd_warshall();
+  in_2->floyd_warshall();
+
+  float res = 0;
+  #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 1)
+  for (size_t j_2 = 0; j_2 < in_2->num_nodes; j_2++) {
+    #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 2)
+    for (size_t i_2 = 0; i_2 < in_2->num_nodes; i_2++) {
+      if ((i_2 == j_2) || (in_2->adjacency[i_2][j_2] == std::numeric_limits<float>::infinity())) continue;
+      #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 3)
+      for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
+        #pragma omp parallel for schedule(dynamic, SPGK_CHUNK) reduction(+:res) if (OMP_SPGK_LOOP == 4)
+        for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
+          if ((i_1 == j_1) || (in_1->adjacency[i_1][j_1] == std::numeric_limits<float>::infinity())) continue;
+          float similarity_edge = fmax(0.0, edge_kernel_param - fabs(in_1->adjacency[i_1][j_1] - in_2->adjacency[i_2][j_2]));
+          if (similarity_edge == 0) continue;
+          float similarity_source = SPKG_VECTOR_KERNEL(in_1->features[i_1], in_2->features[i_2], features_size);
+          float similarity_sink   = SPKG_VECTOR_KERNEL(in_1->features[j_1], in_2->features[j_2], features_size);
+          res += similarity_source * similarity_edge * similarity_sink;
+        }
+      }
+    }
+  }
+
+  return res;
+}
+
 #else
 #error "incorrect OMP_SPGK verison"
 #endif
