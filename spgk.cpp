@@ -11,9 +11,8 @@
 #include <cstdlib>
 
 #include <cassert>
-
+ 
 #if !defined(SPGK_CHUNK)
-#define SPGK_CHUNK = 1
 #endif
 
 #if !defined(OMP_FW)
@@ -29,13 +28,14 @@ void spgk_input_t::floyd_warshall() {
 
     shorted = true;
   }
-}
+ }
 #elif OMP_FW == 0
 void spgk_input_t::floyd_warshall() {
   if (!shorted) {
-    #pragma omp parallel for
     for (size_t k = 0; k < num_nodes; k++)
+    #pragma omp parallel for schedule(dynamic, FW_CHUNK) if (OMP_FW_INNER == 0)
     for (size_t i = 0; i < num_nodes; i++)
+    #pragma omp parallel for schedule(dynamic, FW_CHUNK) if (OMP_FW_INNER == 1)
     for (size_t j = 0; j < num_nodes; j++)
     if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
     adjacency[i][j] = adjacency[i][k] + adjacency[k][j];
@@ -47,64 +47,9 @@ void spgk_input_t::floyd_warshall() {
 void spgk_input_t::floyd_warshall() {
   if (!shorted) {
     for (size_t k = 0; k < num_nodes; k++)
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, FW_CHUNK) if (OMP_FW_INNER == 0)
     for (size_t i = 0; i < num_nodes; i++)
-    for (size_t j = 0; j < num_nodes; j++)
-    if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
-    adjacency[i][j] = adjacency[i][k] + adjacency[k][j];
-
-    shorted = true;
-  }
-}
-#elif OMP_FW == 2
-void spgk_input_t::floyd_warshall() {
-  if (!shorted) {
-    for (size_t k = 0; k < num_nodes; k++)
-    for (size_t i = 0; i < num_nodes; i++)
-    #pragma omp parallel for
-    for (size_t j = 0; j < num_nodes; j++)
-    if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
-    adjacency[i][j] = adjacency[i][k] + adjacency[k][j];
-
-    shorted = true;
-  }
-}
-#elif OMP_FW == 3
-void spgk_input_t::floyd_warshall() {
-  if (!shorted) {
-    #pragma omp parallel for
-    for (size_t k = 0; k < num_nodes; k++)
-    #pragma omp parallel for
-    for (size_t i = 0; i < num_nodes; i++)
-    for (size_t j = 0; j < num_nodes; j++)
-    if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
-    adjacency[i][j] = adjacency[i][k] + adjacency[k][j];
-
-    shorted = true;
-  }
-}
-#elif OMP_FW == 4
-void spgk_input_t::floyd_warshall() {
-  if (!shorted) {
-    for (size_t k = 0; k < num_nodes; k++)
-    #pragma omp parallel for
-    for (size_t i = 0; i < num_nodes; i++)
-    #pragma omp parallel for
-    for (size_t j = 0; j < num_nodes; j++)
-    if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
-    adjacency[i][j] = adjacency[i][k] + adjacency[k][j];
-
-    shorted = true;
-  }
-}
-#elif OMP_FW == 5
-void spgk_input_t::floyd_warshall() {
-  if (!shorted) {
-    #pragma omp parallel for
-    for (size_t k = 0; k < num_nodes; k++)
-    #pragma omp parallel for
-    for (size_t i = 0; i < num_nodes; i++)
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, FW_CHUNK) if (OMP_FW_INNER == 1)
     for (size_t j = 0; j < num_nodes; j++)
     if (adjacency[i][j] > adjacency[i][k] + adjacency[k][j])
     adjacency[i][j] = adjacency[i][k] + adjacency[k][j];

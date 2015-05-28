@@ -1,4 +1,3 @@
-
 DEBUG_FLAGS=-Wall -g -O0 -pg 
 PROD_FLAGS=-Wall -O3 
 
@@ -8,19 +7,23 @@ FLAGS=-fopenmp $(PROD_FLAGS)
 all: test-cfg test-spgk pairwise-spgk test-fw fw-time
 
 warshall: fw-time fw-time-0 fw-time-1 fw-time-2 fw-time-3 fw-time-4 fw-time-5
-plot-warshall-small: fw-time fw-time-0 fw-time-1 fw-time-2 fw-time-3 fw-time-4 fw-time-5
+plot-warshall-small: fw-time fw-time-0 fw-time-1 fw-time-2 fw-time-3 fw-time-4 \
+	fw-time-5
 	./genfw.sh samples/FdCMeDTY76jcz1EpqLhQ/FdCMeDTY76jcz1EpqLhQ-rtn_3.json
 
-plot-warshall: fw-time fw-time-0 fw-time-1 fw-time-2 fw-time-3 fw-time-4 fw-time-5
+plot-warshall: fw-time fw-time-0 fw-time-1 fw-time-2 fw-time-3 fw-time-4       \ 
+	fw-time-5
 	./genfw.sh samples/85lCRjIZmV670qYBJSNo/85lCRjIZmV670qYBJSNo-rtn_80.json
 
 check: check-cfg check-spgk check-pairwise test-fw
 
 check-cfg: test-cfg
-	./test-cfg samples/0BZQIJak6Pu2tyAXfrzR/0BZQIJak6Pu2tyAXfrzR-sub_41F46A.json samples/FdCMeDTY76jcz1EpqLhQ/FdCMeDTY76jcz1EpqLhQ-sub_4E671E.json
+	./test-cfg samples/0BZQIJak6Pu2tyAXfrzR/0BZQIJak6Pu2tyAXfrzR-sub_41F46A.jso\
+		n samples/FdCMeDTY76jcz1EpqLhQ/FdCMeDTY76jcz1EpqLhQ-sub_4E671E.json
 
 check-spgk: test-spgk
-	./test-spgk 10 10 5 500 # 10 nodes per graph, 5 features per node, and 50% chance for an edge to exist
+	./test-spgk 10 10 5 500 # 10 nodes per graph, 5 features per node, and 50% \
+		chance for an edge to exist
 
 check-pairwise: pairwise-spgk samples
 	./pairwise-spgk 0BZQIJak6Pu2tyAXfrzR 0WQtf1pNPdRqUI7KJFAT samples instructions.lst
@@ -31,34 +34,32 @@ check-fw: test-fw samples
 samples: samples.tgz
 	tar xzf samples.tgz
 
+install:
+	mkdir -p spgkV/fw/exe
+	$(foreach fwv,0 1, $(foreach inner,0 1, mkdir -p spgkV/fw$(fwv)$(inner)/exe ;))
+
 clean:
 	rm -f test-cfg test-spgk pairwise-spgk
-	rm -f *.o *.dot *.svg
+	rm -f *.o *.dot *.svg spgkV/*.ospgkV/*.bin 
 	rm -f fw-time* warshall_heat.png gmon.out 3dfw.dat testdatafw.dat test-fw
 
 test-fw: test-fw.o spgk.o graph-loader.o timer.o vector-kernels.o 
 	c++ $(FLAGS) -lrt vector-kernels.o test-fw.o spgk.o graph-loader.o jsonxx.o timer.o -o test-fw
 
 fw-time: time-fw.o spgk.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(FLAGS) -lrt vector-kernels.o time-fw.o spgk.o graph-loader.o jsonxx.o timer.o -o fw-time
+	c++ $(FLAGS) -lrt vector-kernels.o time-fw.o spgk.o graph-loader.o jsonxx.o timer.o -o spgkV/fw/exe/timeFW
 
-fw-time-0: time-fw.o spgk0.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(FLAGS) -DOMP_FW=0 -lrt vector-kernels.o time-fw.o spgk0.o graph-loader.o jsonxx.o timer.o -o fw-time-0
-
-fw-time-1: time-fw.o spgk1.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(FLAGS) -DOMP_FW=1 -lrt vector-kernels.o time-fw.o spgk1.o graph-loader.o jsonxx.o timer.o -o fw-time-1
-
-fw-time-2: time-fw.o spgk2.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(FLAGS) -DOMP_FW=2 -lrt vector-kernels.o time-fw.o spgk2.o graph-loader.o jsonxx.o timer.o -o fw-time-2
-
-fw-time-3: time-fw.o spgk3.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(FLAGS) -DOMP_FW=3 -lrt vector-kernels.o time-fw.o spgk3.o graph-loader.o jsonxx.o timer.o -o fw-time-3
-
-fw-time-4: time-fw.o spgk4.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(FLAGS) -DOMP_FW=4 -lrt vector-kernels.o time-fw.o spgk4.o graph-loader.o jsonxx.o timer.o -o fw-time-4
-
-fw-time-5: time-fw.o spgk5.o graph-loader.o timer.o vector-kernels.o 
-	c++ $(FLAGS) -DOMP_FW=5 -lrt vector-kernels.o time-fw.o spgk5.o graph-loader.o jsonxx.o timer.o -o fw-time-5
+fw-time-ver: time-fw.o spgkFWX graph-loader.o timer.o vector-kernels.o
+	> fwverMaster
+	$(foreach i,0 1, \
+		$(foreach j, 0 1, \
+			> fw$(i)$(j);\
+			echo "fw$(i)$(j)" >> fwverMaster; \
+			$(foreach chunkSize, 1 2 4 8 16 32 64, \
+				echo "timeFW$(i)$(j)chunk_$(chunkSize)" >> fw$(i)$(j); \
+				c++ $(FLAGS) -lrt vector-kernels.o time-fw.o spgkV/fw/spgkFW$(i)$(j)chunk_$(chunkSize).o \
+				graph-loader.o jsonxx.o timer.o -o spgkV/fw$(i)$(j)/exe/timeFW$(i)$(j)chunk_$(chunkSize); \
+			)))
 
 test-cfg: test-cfg.o spgk.o vector-kernels.o timer.o graph-loader.o jsonxx.o
 	c++  $(FLAGS) -lrt vector-kernels.o spgk.o timer.o test-cfg.o graph-loader.o jsonxx.o -o test-cfg
@@ -96,23 +97,27 @@ graph-loader.o: graph-loader.cpp graph-loader.hpp vector-kernels.hpp jsonxx.hpp
 spgk.o: spgk.cpp spgk.hpp vector-kernels.hpp
 	c++ $(FLAGS) -c spgk.cpp -o spgk.o
 	
-spgk0.o: spgk.cpp spgk.hpp vector-kernels.hpp
-	c++ $(FLAGS) -DOMP_FW=0 -c spgk.cpp -o spgk0.o
+NUM_SPGK: 
 
-spgk1.o: spgk.cpp spgk.hpp vector-kernels.hpp
-	c++ $(FLAGS) -DOMP_FW=1 -c spgk.cpp -o spgk1.o
+spgkV.o: spgk.cpp spgk.hpp vector-kernels.hpp
+	$(foreach i,0 1, \
+		$(foreach j, 0 1, \
+		$(foreach k, 0 1, \
+		$(foreach l, 0 1, \
+		$(foreach chunk, 1 2 4 8, \
+		c++ $(FLAGS) -DOMP_SPGK=0 -DOMP_SPGKA=$(i) -DOMP_SPGKB=$(j) \
+		-DOMP_SPGKC=$(k)  -DOMP_SPGKD=$(l) -DSPGK_CHUNK=$(chunk) -c spgk.cpp -o \
+		spgkV/spgk$(i)$(j)$(k)$(l)chunk_$(chunk).o ; \
+	)))))
 
-spgk2.o: spgk.cpp spgk.hpp vector-kernels.hpp
-	c++ $(FLAGS) -DOMP_FW=2 -c spgk.cpp -o spgk2.o
+.PHONY: spgkFWX
 
-spgk3.o: spgk.cpp spgk.hpp vector-kernels.hpp
-	c++ $(FLAGS) -DOMP_FW=3 -c spgk.cpp -o spgk3.o
-
-spgk4.o: spgk.cpp spgk.hpp vector-kernels.hpp
-	c++ $(FLAGS) -DOMP_FW=4 -c spgk.cpp -o spgk4.o
-
-spgk5.o: spgk.cpp spgk.hpp vector-kernels.hpp
-	c++ $(FLAGS) -DOMP_FW=5 -c spgk.cpp -o spgk5.o
+spgkFWX: spgk.cpp spgk.hpp vector-kernels.hpp FORCE 
+	$(foreach chunk,1 2 4 8 16 32 64, \
+		$(foreach fwv,0 1, \
+		$(foreach inner,0 1, \
+			c++ $(FLAGS) -DOMP_FW=$(fwv) -DFW_CHUNK=$(chunk) -DOMP_FW_INNER=$(inner) -c spgk.cpp -o spgkV/fw/spgkFW$(fwv)$(inner)chunk_$(chunk).o ; \
+		)))
 
 vector-kernels.o: vector-kernels.cpp vector-kernels.hpp
 	c++ $(FLAGS) -c vector-kernels.cpp -o vector-kernels.o
@@ -120,3 +125,4 @@ vector-kernels.o: vector-kernels.cpp vector-kernels.hpp
 timer.o: timer.c timer.h
 	cc $(FLAGS) -c timer.c -o timer.o
 
+FORCE:
