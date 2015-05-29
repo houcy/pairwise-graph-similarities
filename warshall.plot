@@ -1,12 +1,18 @@
-set xlabel "FW version"
-set ylabel "OMP_NUM_THREADS-1"
-set zlabel "time(ms)"
+set xlabel "Threads"
+set ylabel "Chunk Size"
+set cblabel "Speedup"
 set term png
-set output "warshall_heat.png"
-stats "3dfw.dat" matrix using 3 nooutput
-set palette defined (STATS_min "red",STATS_max "blue")
-set cbrange [20000:40000]
-plot "3dfw.dat" matrix with image
+set output "fw00speedup_heat.png"
+
+unset key
+#unset cbtics
+
+set xtics ( "24" 0, "48" 1, "96" 2 )
+set ytics ( "4" 0,"16" 1,"64" 2,"128" 3 )
+#set logscale x 2
+
 #set pm3d map
-#set pm3d interpolate 1,1
-#splot "3dfw.dat" matrix
+#set pm3d interpolate 0,0
+#splot "results/fw00speedup" matrix
+plot "results/fw00speedup" matrix with image, \
+      '' matrix using 1:2:(sprintf('%.2f', $3)) with labels font ',16'
