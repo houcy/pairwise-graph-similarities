@@ -1,10 +1,34 @@
 
-#set term pngcairo enhanced font 'Verdana,12' size 800, 400
-#set output "stat-cfg.png"
-#set multiplot layout 1,2
+set term pngcairo enhanced font 'Verdana,12' size 800, 800
 
-#splot 'stat-cfg.data' u 1:2:5
-splot 'stat-cfg.data' u 3:4:5, 'stat-cfg.data' u 3:4:2
+set hidden3d offset 10
+set dgrid3d 50,50 qnorm 10
 
-#unset multiplot
+set pm3d
+set palette
+
+set log
+
+set xlabel "Graph 1"
+set ylabel "Graph 2"
+set zlabel "Seconds"
+
+#set term wxt 0
+set output "stat-cfg-nodes.png"
+set title "SPGK computation time, function of the number of Nodes."
+splot 'stat-cfg.data' using 1:4:7 notitle
+
+#set term wxt 1
+set output "stat-cfg-edges.png"
+set title "SPGK computation time, function of the number of Edges (original graph)."
+splot 'stat-cfg.data' using 2:5:7 notitle
+
+#set term wxt 2
+set output "stat-cfg-edges-after-fw.png"
+set title "SPGK computation time, function of the number of Edges (shortest path graph)."
+splot 'stat-cfg.data' using 3:6:7 notitle
+
+set term wxt 0 size 800,600
+set title "SPGK computation time, function of the number of Edges (shortest path graph)."
+splot 'stat-cfg.data' using 3:6:7 notitle
 
