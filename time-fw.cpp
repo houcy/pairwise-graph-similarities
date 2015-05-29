@@ -1,6 +1,7 @@
 #include "spgk.hpp"
 #include "graph-loader.hpp"
 #include "timer.h"
+#include <iostream>
 #include <fstream>
 #include <cstdlib>
 #include <cassert>
@@ -27,6 +28,8 @@ int main(int argc, char ** argv) {
 
   my_timer_start(timer);
   cfg->floyd_warshall();
+  std::ofstream hashfile ("hashed.txt", std::ofstream::out | std::ios::app);
+  cfg->hashAdj(hashfile);
   my_timer_stop(timer);
   my_timer_delta(timer);
 

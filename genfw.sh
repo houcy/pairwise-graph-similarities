@@ -3,6 +3,8 @@ RUNS=$5
 FILES=spgkV/fw/exe/*
 threadmin=$2
 threadmax=$3
+> hashed.txt
+
 mkdir -p tests
 while IFS= read -r dir
 do
@@ -19,6 +21,7 @@ do
             for runs in `seq 1 $RUNS`;
             do
                 ./spgkV/$dir/exe/$file $1 >> tempRow
+                cat tempRow
                 echo '' >> tempRow
             done
             ./averager.sh 1 tempRow >> tests/tempdata 

@@ -45,6 +45,7 @@ clean:
 	rm -f *.o *.dot *.svg spgkV/* tests/* -r 
 	rm -f fw-time* warshall_heat.png gmon.out 3dfw.dat testdatafw.dat test-fw
 	rm -f fw00 fw01 fw10 fw11 fwverMaster
+	rm tempRow hashed.txt
 
 genFW: fw-time fw-time-ver
 	./genfw.sh samples/ADzc7SVJd1YE69kCZv5y/ADzc7SVJd1YE69kCZv5y-rtn_3.json

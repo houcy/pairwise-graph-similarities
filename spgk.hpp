@@ -37,6 +37,7 @@ struct spgk_input_t {
   void print(std::ostream & out);
   void print_features(std::ostream & out);
   void print_adjacency(std::ostream & out);
+  void hashAdj(std::ofstream & out);
 
   void toDot(char * file);
   void toDot(std::ostream & out);

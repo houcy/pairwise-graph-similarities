@@ -12,6 +12,18 @@
 
 #include <cassert>
 
+void spgk_input_t::hashAdj(std::ofstream & out) {
+    float result = 0;
+    for (size_t i = 0; i < num_nodes; i++) {
+        for (size_t j = 0; j < num_nodes; j++) {
+            if(adjacency[i][j] != std::numeric_limits<float>::infinity())
+                result += adjacency[i][j]*i*j;
+        }
+    }
+    out << result << " : hashed \n";
+
+}
+
 #if !defined(SPGK_CHUNK)
 #endif
 
