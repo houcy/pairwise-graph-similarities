@@ -4,6 +4,16 @@ FILES=spgkV/fw/exe/*
 threadmin=$2
 threadmax=$3
 > hashed.txt
+echo ""
+if [ "$#" -ge 6 ]
+then
+    baseline=$(eval "./baseline.sh $1 $RUNS");
+    echo "baseline: "$baseline
+else
+    baseline=$(eval "./readbaseline.sh");
+fi
+
+echo ""
 
 mkdir -p tests
 while IFS= read -r dir
@@ -21,12 +31,14 @@ do
             for runs in `seq 1 $RUNS`;
             do
                 ./spgkV/$dir/exe/$file $1 >> tempRow
-                cat tempRow
+                #cat tempRow
                 echo '' >> tempRow
             done
-            ./averager.sh 1 tempRow >> tests/tempdata 
+            echo $(eval ./averager.sh 1 tempRow $baseline) speedup
+            ./averager.sh 1 tempRow $baseline >> tests/tempdata
 
-            echo "processing $file with $THREADS thread(s)"
+            echo "processed $file with $THREADS thread(s)"
+            echo ""
         done
         echo '' >> tests/tempdata
         cat tests/tempdata tests/$dir > temp && mv temp tests/$dir
