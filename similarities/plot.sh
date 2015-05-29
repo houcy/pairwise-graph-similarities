@@ -1,0 +1,7 @@
+#!/bin/bash
+
+SIMILARITIES_DIR=.
+RUNS_DIR=$SIMILARITIES_DIR/runs
+
+for 
+

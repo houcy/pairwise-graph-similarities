@@ -27,8 +27,3 @@ splot 'stat-cfg.data' using 2:5:7 notitle
 set output "stat-cfg-edges-after-fw.png"
 set title "SPGK computation time, function of the number of Edges (shortest path graph)."
 splot 'stat-cfg.data' using 3:6:7 notitle
-
-#set term wxt 0 size 800,600
-#set title "SPGK computation time, function of the number of Edges (shortest path graph)."
-#splot 'stat-cfg.data' using 3:6:7 notitle
-

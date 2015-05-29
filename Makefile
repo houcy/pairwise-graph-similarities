@@ -45,7 +45,7 @@ clean:
 	rm -f *.o *.dot *.svg spgkV/* tests/* -r 
 	rm -f fw-time* warshall_heat.png gmon.out 3dfw.dat testdatafw.dat test-fw
 	rm -f fw00 fw01 fw10 fw11 fwverMaster
-	rm tempRow hashed.txt
+	rm -f tempRow hashed.txt
 
 genFW: fw-time fw-time-ver
 	./genfw.sh samples/ADzc7SVJd1YE69kCZv5y/ADzc7SVJd1YE69kCZv5y-rtn_3.json
@@ -98,6 +98,9 @@ test-spgk.o: test-spgk.cpp spgk.hpp timer.h
 
 test-cfg.o: test-cfg.cpp spgk.hpp timer.h
 	c++ $(FLAGS) -c test-cfg.cpp -o test-cfg.o
+
+run-cfg.o: run-cfg.cpp spgk.hpp timer.h
+	c++ $(FLAGS) -c run-cfg.cpp -o run-cfg.o
 
 pairwise-similarity.o: pairwise-similarity.cpp pairwise-similarity.hpp
 	c++ $(FLAGS) -c pairwise-similarity.cpp -o pairwise-similarity.o
