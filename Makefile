@@ -64,7 +64,7 @@ fw-time-ver: time-fw.o spgkFWX graph-loader.o timer.o vector-kernels.o
 		$(foreach j, 0, \
 			> fw$(i)$(j);\
 			echo "fw$(i)$(j)" >> fwverMaster; \
-			$(foreach chunkSize, 4 16 64 256, \
+			$(foreach chunkSize, 4 16 64 128, \
 				echo "timeFW$(i)$(j)chunk_$(chunkSize)" >> fw$(i)$(j); \
 				c++ $(FLAGS) -lrt vector-kernels.o time-fw.o \
 				spgkV/fw/spgkFW$(i)$(j)chunk_$(chunkSize).o \
@@ -123,7 +123,7 @@ spgkV.o: spgk.cpp spgk.hpp vector-kernels.hpp
 	)))))
 
 spgkFWX: spgk.cpp spgk.hpp vector-kernels.hpp 
-	$(foreach chunk,4 16 64 256, \
+	$(foreach chunk,4 16 64 128, \
 		$(foreach fwv,0 1, \
 		$(foreach inner,0, \
 			c++ $(FLAGS) -DOMP_FW=$(fwv) -DFW_CHUNK=$(chunk) \
