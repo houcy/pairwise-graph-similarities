@@ -32,11 +32,15 @@ chunks=$2
 [ -z "$chunks" ] && chunks=$(for chunk in $(seq 0 8); do echo "$((1<<chunk))"; done)
 nchunks=$(wc -w <<< "$chunks")
 
-n=$((nversions*4*nchunks))
+loops=$3
+[ -z "$loops" ] && loops=$(seq 1 4)
+nloops=$(wc -w <<< "$loops")
+
+n=$((nversions*nloops*nchunks))
 cnt=0
 
 for omp_spgk in $versions; do
-  for omp_spgk_loop in $(seq 1 4); do
+  for omp_spgk_loop in $loops; do
     for spgk_chunk in $chunks; do
 
       config="-DOMP_SPGK=$omp_spgk -DOMP_SPGK_LOOP=$omp_spgk_loop -DSPGK_CHUNK=$spgk_chunk"

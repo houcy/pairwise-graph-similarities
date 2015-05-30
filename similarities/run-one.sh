@@ -42,7 +42,11 @@ nchunks=$(wc -w <<< "$chunks")
 
 #echo "chunks=$chunks"
 
-numthreads=$6
+loops=$6
+[ -z "$loops" ] && loops=$(seq 1 4)
+nloops=$(wc -w <<< "$loops")
+
+numthreads=$7
 [ -z "$numthreads" ] && numthreads=$(nproc)
 nnumthreads=$(wc -w <<< "$numthreads")
 
@@ -55,7 +59,7 @@ echo " > $cfg1"
 echo " > $cfg2"
 
 for omp_spgk in $versions; do
-  for omp_spgk_loop in $(seq 1 4); do
+  for omp_spgk_loop in $loops; do
     for spgk_chunk in $chunks; do
 
       suffix="v_$omp_spgk-l_$omp_spgk_loop-c_$spgk_chunk"
