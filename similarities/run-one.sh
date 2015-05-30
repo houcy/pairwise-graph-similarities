@@ -51,7 +51,8 @@ nnumthreads=$(wc -w <<< "$numthreads")
 n=$((nversions*4*nchunks))
 cnt=0
 
-echo " > $cfg1 and $cfg2"
+echo " > $cfg1"
+echo " > $cfg2"
 
 for omp_spgk in $versions; do
   for omp_spgk_loop in $(seq 1 4); do

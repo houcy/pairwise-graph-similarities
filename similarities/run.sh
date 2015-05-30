@@ -23,6 +23,7 @@ for cfg1 in $(cat $1); do
 for cfg2 in $(cat $1); do
 
   cnt=$((cnt+1))
+  clear
   echo "$cnt/$((n*n))"
 
   ./run-one.sh ../samples/$cfg1 ../samples/$cfg2 $2 "$3" "$4" "$5"
