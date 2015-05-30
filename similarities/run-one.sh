@@ -52,7 +52,7 @@ nnumthreads=$(wc -w <<< "$numthreads")
 
 #echo "numthreads=$numthreads"
 
-n=$((nversions*4*nchunks))
+n=$((nversions*nloops*nchunks))
 cnt=0
 
 echo " > $cfg1"

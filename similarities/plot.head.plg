@@ -1,0 +1,13 @@
+
+set hidden3d
+set dgrid3d 100,100 qnorm 2
+
+set pm3d
+set palette
+
+set log
+
+set xlabel "Graph 1"
+set ylabel "Graph 2"
+set zlabel "Seconds"
+
