@@ -13,3 +13,4 @@ gmon.out
 logs/*
 warshall_heat.png
 tests/*
+similarities/*
