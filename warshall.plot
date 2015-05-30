@@ -7,7 +7,7 @@ unset key
 #1797 nodes and 898 edges \nouter-loop parallelization" font "Helvetica, 10"
 set multiplot layout 1,2 title "Speedup of Floyd-Warshall\n\n 4 AMD Opteron 6164HE 12-core 1.7Ghz CPUs \nCFG of 1797 nodes and 898 edges"
 
-set label 11 center at graph 0.5,char 0.5 "outer-loop parallelization" font ",18"
+set label 11 center at graph 0.5,char 0.5 "original-loop parallelization" font ",18"
 
 set tmargin 3
 set bmargin 5
@@ -29,7 +29,7 @@ plot "results/fw00speedup20runsBgd75" matrix with image, \
 
 
 
-set label 11 "inner-loop parallelization"
+set label 11 "flipped-loop parallelization"
 plot "results/fw10speedup20runsBgd75" matrix with image, \
       '' matrix using 1:2:(sprintf('%.2f', $3)) with labels
 
