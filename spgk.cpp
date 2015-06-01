@@ -156,7 +156,7 @@ float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_par
   in_2->floyd_warshall();
 
   float res = 0;
-  #pragma omp parallel for reduction(+:res) if ( OMP_SPGK_LOOP == 1)
+  #pragma omp parallel for schedule(runtime) reduction(+:res) if ( OMP_SPGK_LOOP == 1)
   for (size_t i_1 = 0; i_1 < in_1->num_nodes; i_1++) {
     #pragma omp parallel for schedule(runtime) reduction(+:res) if (OMP_SPGK_LOOP == 2)
     for (size_t j_1 = 0; j_1 < in_1->num_nodes; j_1++) {
