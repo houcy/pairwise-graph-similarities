@@ -37,7 +37,7 @@ nversions=$(wc -w <<< "$versions")
 #echo "versions=$versions"
 
 chunks=$5
-[ -z "$chunks" ] && chunks=$(for chunk in $(seq 0 8); do echo "$((1<<chunk))"; done)
+[ -z "$chunks" ] && chunks=$(for chunk in $(seq 0 7); do echo "$((1<<chunk))"; done)
 nchunks=$(wc -w <<< "$chunks")
 
 #echo "chunks=$chunks"
@@ -62,15 +62,17 @@ for omp_spgk in $versions; do
   for omp_spgk_loop in $loops; do
     for spgk_chunk in $chunks; do
 
-      suffix="v_$omp_spgk-l_$omp_spgk_loop-c_$spgk_chunk"
+      suffix="v_$omp_spgk-l_$omp_spgk_loop"
       cnt=$((cnt+1))
 
       for numthread in $numthreads; do
 
-        echo -ne "\r                                                                   \r > Running spgk-$suffix ($cnt/$n) for $numthread"
+        echo -ne "\r                                                                   \r > Running spgk-$suffix ($cnt/$n) for $numthread for dynamic chunksize $spgk_chunk"
 
         for c in $(seq 1 $nruns); do
-          OMP_NUM_THREADS=$numthread ./$BINS_DIR/spgk-$suffix $cfg1 $cfg2 >> $RUNS_DIR/spgk-$suffix-n_$numthread.csv
+          export OMP_SCHEDULE="dynamic,$spgk_chunk" 
+          export OMP_NUM_THREADS=$numthread 
+          ./$BINS_DIR/spgk-$suffix $cfg1 $cfg2 >> $RUNS_DIR/spgk-$suffix-s_d-c_$spgk_chunk-n_$numthread.csv;
         done
       done
     done

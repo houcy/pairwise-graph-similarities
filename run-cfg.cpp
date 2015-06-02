@@ -13,7 +13,7 @@ int main(int argc, char ** argv) {
   std::string line;
   std::ifstream file;
   size_t cnt = 0;
-  file.open("instructions.lst");
+  file.open("../instructions.lst");
   while(!file.eof()) {
     std::getline(file, line);
     instruction_dictionary.insert(std::pair<std::string, size_t>(line, cnt++));
@@ -28,13 +28,10 @@ int main(int argc, char ** argv) {
   //
   {
     cfg_0 = loadCFG(argv[1], instruction_dictionary);
-    std::cout << cfg_0->num_nodes << std::endl;
     stats[0] = cfg_0->num_nodes;
-    std::cout << cfg_0->getNumEdges() << std::endl;
 
     stats[1] = cfg_0->getNumEdges();
     cfg_0->floyd_warshall();
-    std::cout << cfg_0->getNumEdges() << std::endl;
 
     stats[2] = cfg_0->getNumEdges();
   }
@@ -42,13 +39,10 @@ int main(int argc, char ** argv) {
   {
     cfg_1 = loadCFG(argv[2], instruction_dictionary);
     stats[3] = cfg_1->num_nodes;
-    std::cout << cfg_1->num_nodes << std::endl;
 
     stats[4] = cfg_1->getNumEdges();
-    std::cout << cfg_1->getNumEdges() << std::endl;
 
     cfg_1->floyd_warshall();
-    std::cout << cfg_1->getNumEdges() << std::endl;
 
     stats[5] = cfg_1->getNumEdges();
   }

@@ -118,9 +118,11 @@ float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_par
 float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_param) {
   assert(in_1->features_size == in_2->features_size);
   const size_t features_size = in_1->features_size;
-
   in_1->floyd_warshall();
   in_2->floyd_warshall();
+#if OMP_SPGK_LOOP==1
+  std::cout << "hello" << std::endl;
+#endif
 
   float res = 0;
   #pragma omp parallel for schedule(runtime) reduction(+:res) if (OMP_SPGK_LOOP == 1)
@@ -143,7 +145,8 @@ float SPGK(spgk_input_t * in_1, spgk_input_t * in_2, const float edge_kernel_par
     }
   }
 
-  return res;
+  return 0;
+//  return res;
 }
 
 #elif OMP_SPGK == 2

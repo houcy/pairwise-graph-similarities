@@ -1,5 +1,5 @@
 DEBUG_FLAGS=-Wall -g -O0 -pg 
-PROD_FLAGS=-Wall -O3 
+PROD_FLAGS=-Wall -O3 -fopenmp 
 
 #FLAGS=-fopenmp $(DEBUG_FLAGS)
 FLAGS=-fopenmp $(PROD_FLAGS)

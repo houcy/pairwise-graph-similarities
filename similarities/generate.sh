@@ -28,23 +28,19 @@ versions=$1
 [ -z "$versions" ] && versions=$(seq 1 24)
 nversions=$(wc -w <<< "$versions")
 
-chunks=$2
-[ -z "$chunks" ] && chunks=$(for chunk in $(seq 0 8); do echo "$((1<<chunk))"; done)
-nchunks=$(wc -w <<< "$chunks")
-
-loops=$3
+loops=$2
 [ -z "$loops" ] && loops=$(seq 1 4)
 nloops=$(wc -w <<< "$loops")
 
-n=$((nversions*nloops*nchunks))
+n=$((nversions*nloops))
 cnt=0
 
 for omp_spgk in $versions; do
   for omp_spgk_loop in $loops; do
-    for spgk_chunk in $chunks; do
 
-      config="-DOMP_SPGK=$omp_spgk -DOMP_SPGK_LOOP=$omp_spgk_loop -DSPGK_CHUNK=$spgk_chunk"
-      suffix="v_$omp_spgk-l_$omp_spgk_loop-c_$spgk_chunk"
+      config="-DOMP_SPGK=$omp_spgk -DOMP_SPGK_LOOP=$omp_spgk_loop"
+      suffix="v_$omp_spgk-l_$omp_spgk_loop"
+      echo $config
 
       cnt=$((cnt+1))
 
@@ -56,7 +52,6 @@ for omp_spgk in $versions; do
       [ $? -ne 0 ] && echo "  link:    $BINS_DIR/spgk-$suffix.log" >> $SIMILARITIES_DIR/errors.log
     done
   done
-done
 echo
 
 if [ -s $SIMILARITIES_DIR/errors.log ]; then
