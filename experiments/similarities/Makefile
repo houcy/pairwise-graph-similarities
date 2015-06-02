@@ -4,19 +4,19 @@ all: test-Xshort
 check: test-Xshort/bests test-Xshort/plot-configs test-Xshort/plot-loops
 
 test-Xshort:
-	./generate.sh test-Xshort "1 2" "16" "1 2"
+	./generate.sh -d test-Xshort -v "1 2" -l "1 2" -c "16"
 
 test-Xshort/runs:
-	./run.sh test-Xshort $(shell pwd)/../../data/samples $(shell pwd)/../Xshort-cfg.lst 1  "1 2" "16" "1 2"
+	./run.sh -d test-Xshort -s $(shell pwd)/../../data/samples -cfg $(shell pwd)/../Xshort-cfg.lst -n 1 -v "1 2" -c "16" -l "1 2"
 
 test-Xshort/bests: test-Xshort/runs
-	./find-best.sh test-Xshort "1 2" "16" "1 2"
+	./find-best.sh -d test-Xshort -v "1 2" -l "1 2" -c "16"
 
 test-Xshort/plot-configs: test-Xshort/runs
-	./plot-per-config.sh test-Xshort "1 2" "16" "1 2"
+	./plot-per-config.sh -d test-Xshort -v "1 2" -l "1 2" -c "16"
 
 test-Xshort/plot-loops: test-Xshort/runs
-	./plot-per-loop.sh test-Xshort "1 2" "16" "1 2"
+	./plot-per-loop.sh -d test-Xshort -v "1 2" -l "1 2" -c "16"
 
 clean:
 	rm -rf test-Xshort

@@ -1,22 +1,25 @@
 #!/bin/bash
 
-work_dir=$1
+while [ ! -z $1 ]; do
+  if   [ "$1" == "-d"   ]; then work_dir=$2;    shift 2;
+  elif [ "$1" == "-v"   ]; then versions=$2;    shift 2;
+  elif [ "$1" == "-c"   ]; then chunks=$2;      shift 2;
+  elif [ "$1" == "-l"   ]; then loops=$2;       shift 2;
+  elif [ "$1" == "-t"   ]; then numthreads=$2;  shift 2;
+  else exit 1; fi
+done
 
-shift 1
+[ -z "$work_dir" ]    && echo "Missing work directory: \"-d work_dir\""        && exit 1
 
-versions=$1
 [ -z "$versions" ] && versions=$(seq 1 24)
 nversions=$(wc -w <<< "$versions")
 
-chunks=$2
-[ -z "$chunks" ] && chunks=$(for chunk in $(seq 0 8); do echo "$((1<<chunk))"; done)
-nchunks=$(wc -w <<< "$chunks")
-
-loops=$3
 [ -z "$loops" ] && loops=$(seq 1 4)
 nloops=$(wc -w <<< "$loops")
 
-numthreads=$4
+[ -z "$chunks" ] && chunks=$(for chunk in $(seq 0 8); do echo "$((1<<chunk))"; done)
+nchunks=$(wc -w <<< "$chunks")
+
 [ -z "$numthreads" ] && numthreads=$(nproc)
 nnumthreads=$(wc -w <<< "$numthreads")
 

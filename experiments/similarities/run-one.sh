@@ -1,64 +1,37 @@
 #!/bin/bash
 
-#
-# USAGE: ./run-one.sh cfg1.json cfg2.json 3 "1 2 3" "1 16 64" "4 8"
-#   - param 1: First CFG           [no default]
-#   - param 2: Second CFG          [no default]
-#   - param 3: work directory      [no default]
-#   - param 4: samples directory   [no default]
-#   - param 5: number of runs      [default: 3]
-#   - param 6: list of versions    [default: 1 through 24]
-#   - param 7: list of chunk sizes [default: 1 2 4 ... 256]
-#   - param 8: list of num threads [default: result of 'nproc' command]
-#
+verbose=0
+while [ ! -z $1 ]; do
+  if   [ "$1" == "-verbose" ]; then verbose=1;        shift 1;
+  elif [ "$1" == "-cfgs"    ]; then cfg1=$2; cfg2=$3; shift 3;
+  elif [ "$1" == "-d"       ]; then work_dir=$2;      shift 2;
+  elif [ "$1" == "-s"       ]; then samples_dir=$2;   shift 2;
+  elif [ "$1" == "-v"       ]; then versions=$2;      shift 2;
+  elif [ "$1" == "-c"       ]; then chunks=$2;        shift 2;
+  elif [ "$1" == "-l"       ]; then loops=$2;         shift 2;
+  elif [ "$1" == "-t"       ]; then numthreads=$2;    shift 2;
+  elif [ "$1" == "-n"       ]; then nruns=$2;         shift 2;
+  else exit 1; fi
+done
 
-if [ "$1" == "-v" ]; then
-  verbose=1
-  shift 1
-else
-  verbose=0
-fi
+[ -z "$work_dir" ]    && echo "Missing work directory: \"-d work_dir\""        && exit 1
+[ -z "$samples_dir" ] && echo "Missing samples directory:  \"-s samples_dir\"" && exit 1
+[ -z "$cfg1" ]        && echo "Missing CFG 1:  \"-cfgs cfg1 cfg2\""            && exit 1
+[ -z "$cfg2" ]        && echo "Missing CFG 2:  \"-cfgs cfg1 cfg2\""            && exit 1
 
-cfg1=$1
-[ -z $cfg1 ] && echo "Missing 1st CFG !" && exit
-
-cfg2=$2
-[ -z $cfg2 ] && echo "Missing 2nd CFG !" && exit
-
-work_dir=$3
-[ -z $work_dir ] && echo "Missing work directory !" && exit
-
-samples_dir=$4
-[ -z $samples_dir ] && echo "Missing samples directory !" && exit
-
-shift 4
-
-nruns=$1
-[ -z $nruns ] && nruns=3
-
-#echo "nruns=$nruns"
-
-versions=$2
 [ -z "$versions" ] && versions=$(seq 1 24)
 nversions=$(wc -w <<< "$versions")
 
-#echo "versions=$versions"
-
-chunks=$3
-[ -z "$chunks" ] && chunks=$(for chunk in $(seq 0 8); do echo "$((1<<chunk))"; done)
-nchunks=$(wc -w <<< "$chunks")
-
-#echo "chunks=$chunks"
-
-loops=$4
 [ -z "$loops" ] && loops=$(seq 1 4)
 nloops=$(wc -w <<< "$loops")
 
-numthreads=$5
+[ -z "$chunks" ] && chunks=$(for chunk in $(seq 0 8); do echo "$((1<<chunk))"; done)
+nchunks=$(wc -w <<< "$chunks")
+
 [ -z "$numthreads" ] && numthreads=$(nproc)
 nnumthreads=$(wc -w <<< "$numthreads")
 
-#echo "numthreads=$numthreads"
+[ -z "$nruns" ] && nruns=3
 
 n=$((nversions*nloops*nchunks*nnumthreads))
 cnt=0

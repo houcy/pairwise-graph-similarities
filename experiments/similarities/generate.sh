@@ -1,25 +1,27 @@
 #!/bin/bash
 
 #
-# USAGE: ./generate.sh work_dir "1 2 3" "1 16 64"
-#   - param 1: work directory
-#   - param 2: list of versions    [default: 1 through 24]
-#   - param 3: list of chunk sizes [default: 1 2 4 ... 256]
+# USAGE: ./generate.sh -d work_dir -v "loop nest versions list" -l "parallel loop list" -c "chunks size list"
 #
 
-work_dir=$1
+while [ ! -z $1 ]; do
+  if   [ "$1" == "-d"   ]; then work_dir=$2;    shift 2;
+  elif [ "$1" == "-v"   ]; then versions=$2;    shift 2;
+  elif [ "$1" == "-c"   ]; then chunks=$2;      shift 2;
+  elif [ "$1" == "-l"   ]; then loops=$2;       shift 2;
+  else exit 1; fi
+done
 
-versions=$2
+[ -z "$work_dir" ] && echo "Missing work directory argument: \"-d work_dir\"" && exit 1
+
 [ -z "$versions" ] && versions=$(seq 1 24)
 nversions=$(wc -w <<< "$versions")
 
-chunks=$3
-[ -z "$chunks" ] && chunks=$(for chunk in $(seq 0 8); do echo "$((1<<chunk))"; done)
-nchunks=$(wc -w <<< "$chunks")
-
-loops=$4
 [ -z "$loops" ] && loops=$(seq 1 4)
 nloops=$(wc -w <<< "$loops")
+
+[ -z "$chunks" ] && chunks=$(for chunk in $(seq 0 8); do echo "$((1<<chunk))"; done)
+nchunks=$(wc -w <<< "$chunks")
 
 n=$((nversions*nloops*nchunks))
 
