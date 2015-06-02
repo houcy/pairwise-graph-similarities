@@ -1,44 +1,48 @@
 #!/bin/bash
 
-#
-# USAGE: ./run.sh short-cfg.lst 3 "1 2 3" "1 16 64" "4 8"
-#   - param 1: work directory      [no default]
-#   - param 2: samples directory   [no default]
-#   - param 3: list of CFG files   [no default]
-#   - param 2: number of runs      [default: 3]
-#   - param 3: list of versions    [default: 1 through 24]
-#   - param 4: list of chunk sizes [default: 1 2 4 ... 256]
-#   - param 5: OpenMP loops        [default: 1 2 3 4]
-#   - param 6: list of num threads [default: result of 'nproc' command]
-#
-# Lists of different length are provided:
-#     Xshort-cfg.lst :     5
-#      short-cfg.lst :    15
-#     medium-cfg.lst :    55
-#      large-cfg.lst :   179
-#     Xlarge-cfg.lst :   691
-#        all-cfg.lst : 12962
+while [ ! -z $1 ]; do
+  if   [ "$1" == "-d"   ]; then base_dir=$2;    shift 2;
+  elif [ "$1" == "-s"   ]; then samples_dir=$2; shift 2;
+  elif [ "$1" == "-j"   ]; then job_name=$2;    shift 2;
+  elif [ "$1" == "-cfg" ]; then cfg_lst=$2;     shift 2;
+  elif [ "$1" == "-v"   ]; then versions=$2;    shift 2;
+  elif [ "$1" == "-c"   ]; then chunks=$2;      shift 2;
+  elif [ "$1" == "-l"   ]; then loops=$2;       shift 2;
+  elif [ "$1" == "-t"   ]; then numthreads=$2;  shift 2;
+  elif [ "$1" == "-n"   ]; then nruns=$2;       shift 2;
+  else echo "Unknown option: \"$1\""; shift 1; fi
+done
 
-work_dir=$1
-[ -z $work_dir ] && echo "Missing work directory !" && exit
+[ -z "$job_name" ]    && echo "Missing job name: \"-j job_name\""        && exit 1
+[ -z "$samples_dir" ] && echo "Missing samples directory:  \"-s samples_dir\"" && exit 1
+[ -z "$cfg_lst" ]     && echo "Missing list of CFGs:  \"-cfg cfgs.lst\""       && exit 1
 
-samples_dir=$2
-[ -z $samples_dir ] && echo "Missing samples directory !" && exit
+[ -z "$base_dir" ]    && base_dir=$(pwd)
 
-cfg_lst=$3
+[ -z "$versions" ] && versions="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24"
+nversions=$(echo $versions | tr ',' ' ' | wc -w)
 
-shift 3
+[ -z "$loops" ] && loops="1,2,3,4"
+nloops=$(echo $loops | tr ',' ' ' | wc -w)
 
-n=$(cat $cfg_lst | wc -l)
-cnt=0
+[ -z "$chunks" ] && chunks="1,2,4,8,16,32,64,128,256"
+nchunks=$(echo $chunks | tr ',' ' ' | wc -w)
+
+[ -z "$numthreads" ] && numthreads=$(nproc)
+nnumthreads=$(echo $numthreads | tr ',' ' ' | wc -w)
+
+[ -z "$nruns" ] && nruns=3
+
+script_dir=$(pwd)
+
+cd $base_dir
 
 for cfg1 in $(shuf $cfg_lst); do
 for cfg2 in $(shuf $cfg_lst); do
+  echo "$cfg1,$cfg2"
+done; done > $job_name.csv
 
-  cnt=$((cnt+1))
-  clear
-  echo "$cnt/$((n*n))"
+./generate.sh -d $base_dir/$job_name-data -v $versions -l $loops -c $chunks
 
-  ./run-one.sh $cfg1 $cfg2 $work_dir $samples_dir $1 "$2" "$3" "$4" "$5"
-done; done
+stool-batch $script_dir/run-one.sh $job_name 10 1 -d $base_dir/$job_name-data -s $samples_dir -v $versions -l $loops -c $chunks -t $numthreads -n $nruns -cfgs
 
