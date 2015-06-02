@@ -10,16 +10,7 @@ int main(int argc, char ** argv) {
   assert(argc == 3);
 
   std::map<std::string, size_t> instruction_dictionary;
-
-  std::string line;
-  std::ifstream file;
-  size_t cnt = 0;
-  file.open("../instructions.lst");
-  while(!file.eof()) {
-    std::getline(file, line);
-    instruction_dictionary.insert(std::pair<std::string, size_t>(line, cnt++));
-  }
-  file.close();
+  initInstructionDictionary(instruction_dictionary);
 
   my_timer_t timer = my_timer_build();
   spgk_input_t * cfg_0;

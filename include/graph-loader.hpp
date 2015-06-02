@@ -14,5 +14,7 @@ spgk_input_t * loadCFG(const std::string & cfg_file, const std::map<std::string,
 
 void loadCG(const std::string & cg_file, std::vector<std::string> & labels);
 
+void initInstructionDictionary(std::map<std::string, size_t> & instruction_dictionary);
+
 #endif /* __GRAPH_LOADER_HPP__ */
 

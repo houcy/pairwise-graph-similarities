@@ -52,7 +52,7 @@ nnumthreads=$(wc -w <<< "$numthreads")
 
 #echo "numthreads=$numthreads"
 
-n=$((nversions*nloops*nchunks))
+n=$((nversions*nloops*nchunks*nnumthreads))
 cnt=0
 
 echo " > $cfg1"
@@ -61,12 +61,9 @@ echo " > $cfg2"
 for omp_spgk in $versions; do
   for omp_spgk_loop in $loops; do
     for spgk_chunk in $chunks; do
-
       suffix="v_$omp_spgk-l_$omp_spgk_loop-c_$spgk_chunk"
-      cnt=$((cnt+1))
-
       for numthread in $numthreads; do
-
+        cnt=$((cnt+1))
         echo -ne "\r                                                                   \r > Running spgk-$suffix ($cnt/$n) for $numthread"
 
         for c in $(seq 1 $nruns); do

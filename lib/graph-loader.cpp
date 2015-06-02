@@ -8,7 +8,13 @@
 #include <string>
 #include <limits>
 #include <algorithm>
+#include <cassert>
+
 using namespace jsonxx;
+
+#ifndef INST_FILE
+#error INST_FILE must be defined!
+#endif
 
 // [Phase 0] Read JSON of CFG and return an input formated for the Shortest Path Graph Kernel
 //           Need to transforme the sequence of instruction into an array => requires dictionary of the instructions in all CFG of both CG !!!!
@@ -118,3 +124,20 @@ void loadCG(const std::string & cg_file, std::vector<std::string> & labels) {
     }
   }
 }
+
+void initInstructionDictionary(std::map<std::string, size_t> & instruction_dictionary) {
+  std::string line;
+  std::ifstream file;
+  size_t cnt = 0;
+  file.open(INST_FILE);
+  if (!file.is_open()) {
+    std::cerr << "Cannot open file: \"" << INST_FILE << "\"" << std::endl;
+  }
+  assert(file.is_open());
+  while(!file.eof()) {
+    std::getline(file, line);
+    instruction_dictionary.insert(std::pair<std::string, size_t>(line, cnt++));
+  }
+  file.close();
+}
+

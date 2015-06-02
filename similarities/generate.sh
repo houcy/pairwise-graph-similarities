@@ -10,11 +10,11 @@ SIMILARITIES_DIR=.
 OBJS_DIR=$SIMILARITIES_DIR/objs
 BINS_DIR=$SIMILARITIES_DIR/bins
 
-SPGK_SRC=../spgk.cpp
+SPGK_SRC=../lib/spgk.cpp
 
-BASE_OBJS_="run-cfg.o vector-kernels.o timer.o graph-loader.o jsonxx.o"
-make -C .. $BASE_OBJS_ &> /dev/null
-BASE_OBJS=$(for obj in $BASE_OBJS_; do echo -n "../$obj "; done)
+make -C ../lib vector-kernels.o timer.o graph-loader.o jsonxx.o &> /dev/null
+make -C ../src run-cfg.o &> /dev/null
+BASE_OBJS="../src/run-cfg.o ../lib/vector-kernels.o ../lib/timer.o ../lib/graph-loader.o ../lib/jsonxx.o"
 
 mkdir -p $OBJS_DIR $BINS_DIR
 
