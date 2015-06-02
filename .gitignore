@@ -3,3 +3,4 @@ src/run-fw
 src/run-cfg
 lib/*.o
 data/samples
+experiments/similarities/test-Xshort

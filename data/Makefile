@@ -4,6 +4,7 @@ all: samples
 check:
 
 clean:
+	rm -rf samples
 
 ### TARGETS
 
