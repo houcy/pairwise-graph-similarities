@@ -25,6 +25,9 @@ nnumthreads=$(wc -w <<< "$numthreads")
 rm -rf $RESULTS_DIR
 mkdir -p $RESULTS_DIR
 
+n=$((nversions*nloops*nchunks*nnumthreads))
+cnt=0
+
 for spgk_chunk in $chunks; do
   for numthread in $numthreads; do
     for omp_spgk in $versions; do
@@ -44,10 +47,12 @@ for spgk_chunk in $chunks; do
 #         echo "$omp_spgk,$omp_spgk_loop,$spgk_chunk,$numthread,$v" >> $RESULTS_DIR/sizes-$sizes.csv
           echo "$omp_spgk,$omp_spgk_loop,$spgk_chunk,$numthread,$sizes,$v" >> $RESULTS_DIR/data.csv
         done
+        echo -ne "\r                     \r($cnt/$n)"
       done
     done
   done
 done
+echo
 
 cat $RESULTS_DIR/data.csv | awk -F, '{print $5"-"$6"-"$7"-"$8"-"$9"-"$10","$1"-"$2"-"$3"-"$4","$11}' \
                           | awk -F, '{if (time[$1] == 0 || $3 < time[$1]) {time[$1] = $3; best[$1] = $2}}END{for (k in time) print k","best[k]","time[k]}' \
