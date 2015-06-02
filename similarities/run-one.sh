@@ -58,6 +58,13 @@ cnt=0
 echo " > $cfg1"
 echo " > $cfg2"
 
+seq_results=$( ./../run-cfg-seq $cfg1 $cfg2 )
+seq_time=$( echo "$seq_results" | tr ',' ' ' | awk '{print $8}')
+echo $seq_results | tr ' ' ',' >> $RUNS_DIR/spgk-seq-results.csv
+echo "Sequential time: $seq_time"
+seq_time_secs=$(echo "$seq_time" | sed "s/...$//g")
+[ -z $seq_time_secs ] && seq_time_secs=1
+echo "Sequential secs: $seq_time_secs"
 for omp_spgk in $versions; do
   for omp_spgk_loop in $loops; do
     for spgk_chunk in $chunks; do
@@ -72,7 +79,7 @@ for omp_spgk in $versions; do
         for c in $(seq 1 $nruns); do
           export OMP_SCHEDULE="dynamic,$spgk_chunk" 
           export OMP_NUM_THREADS=$numthread 
-          ./$BINS_DIR/spgk-$suffix $cfg1 $cfg2 >> $RUNS_DIR/spgk-$suffix-s_d-c_$spgk_chunk-n_$numthread.csv;
+	  timeout $seq_time_secs ./$BINS_DIR/spgk-$suffix $cfg1 $cfg2 >> $RUNS_DIR/spgk-$suffix-s_d-c_$spgk_chunk-n_$numthread.csv;
         done
       done
     done
