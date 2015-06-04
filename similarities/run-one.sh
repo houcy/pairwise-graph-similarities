@@ -67,6 +67,15 @@ seq_time_secs=$(echo "$seq_time" | sed "s/...$//g")
 echo "Sequential secs: $seq_time_secs"
 for omp_spgk in $versions; do
   for omp_spgk_loop in $loops; do
+    for statruns in $(seq 1 $nruns); do
+	for num_thread in $numthreads; do
+        export OMP_SCHEDULE="static"
+        export OMP_NUM_THREADS=$num_thread
+         suffix="v_$omp_spgk-l_$omp_spgk_loop"
+	echo -ne "\r                                                                   \r > Running spgk-$suffix ($cnt/$n) for $num_thread for static"
+        timeout $seq_time_secs ./$BINS_DIR/spgk-$suffix $cfg1 $cfg2 >> $RUNS_DIR/spgk-$suffix-s_d-c_static-n_$num_thread.csv;
+    done    
+    done
     for spgk_chunk in $chunks; do
 
       suffix="v_$omp_spgk-l_$omp_spgk_loop"
