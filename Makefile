@@ -1,5 +1,5 @@
-DEBUG_FLAGS=-Wall -g -O0 -pg 
-PROD_FLAGS=-Wall -O3 -fopenmp 
+DEBUG_FLAGS=-Wall -g -O0 -pg
+PROD_FLAGS=-Wall -O3 -fopenmp
 
 #FLAGS=-fopenmp $(DEBUG_FLAGS)
 FLAGS=-fopenmp $(PROD_FLAGS)
@@ -11,7 +11,7 @@ plot-warshall-small: fw-time fw-time-0 fw-time-1 fw-time-2 fw-time-3 fw-time-4 \
 	fw-time-5
 	./genfw.sh samples/FdCMeDTY76jcz1EpqLhQ/FdCMeDTY76jcz1EpqLhQ-rtn_3.json
 
-plot-warshall: fw-time fw-time-0 fw-time-1 fw-time-2 fw-time-3 fw-time-4       \ 
+plot-warshall: fw-time fw-time-0 fw-time-1 fw-time-2 fw-time-3 fw-time-4       \
 	fw-time-5
 	./genfw.sh samples/85lCRjIZmV670qYBJSNo/85lCRjIZmV670qYBJSNo-rtn_80.json
 
@@ -28,7 +28,7 @@ check-spgk: test-spgk
 check-pairwise: pairwise-spgk samples
 	./pairwise-spgk 0BZQIJak6Pu2tyAXfrzR 0WQtf1pNPdRqUI7KJFAT samples \
 		instructions.lst
-	
+
 check-fw: test-fw samples
 	./test-fw samples/7h32P6rADjMVEQuoOJIB/7h32P6rADjMVEQuoOJIB-rtn_1.json
 
@@ -42,7 +42,7 @@ install:
 
 clean:
 	rm -f test-cfg test-spgk pairwise-spgk
-	rm -f *.o *.dot *.svg spgkV/* tests/* -r 
+	rm -f *.o *.dot *.svg spgkV/* tests/* -r
 	rm -f fw-time* warshall_heat.png gmon.out 3dfw.dat testdatafw.dat test-fw
 	rm -f fw00 fw01 fw10 fw11 fwverMaster
 	rm -f tempRow hashed.txt
@@ -50,11 +50,11 @@ clean:
 genFW: fw-time fw-time-ver
 	./genfw.sh samples/ADzc7SVJd1YE69kCZv5y/ADzc7SVJd1YE69kCZv5y-rtn_3.json
 
-test-fw: test-fw.o spgk.o graph-loader.o timer.o vector-kernels.o 
+test-fw: test-fw.o spgk.o graph-loader.o timer.o vector-kernels.o
 	c++ $(FLAGS) -lrt vector-kernels.o test-fw.o spgk.o graph-loader.o jsonxx.o\
 		timer.o -o test-fw
 
-fw-time: time-fw.o spgk.o graph-loader.o timer.o vector-kernels.o 
+fw-time: time-fw.o spgk.o graph-loader.o timer.o vector-kernels.o
 	c++ $(FLAGS) -lrt vector-kernels.o time-fw.o spgk.o graph-loader.o jsonxx.o\
 		timer.o -o spgkV/fw/exe/timeFW
 
@@ -113,7 +113,7 @@ graph-loader.o: graph-loader.cpp graph-loader.hpp vector-kernels.hpp jsonxx.hpp
 
 spgk.o: spgk.cpp spgk.hpp vector-kernels.hpp
 	c++ $(FLAGS) -c spgk.cpp -o spgk.o
-	
+
 spgkV.o: spgk.cpp spgk.hpp vector-kernels.hpp
 	$(foreach i,0 1, \
 		$(foreach j, 0 1, \
@@ -125,7 +125,7 @@ spgkV.o: spgk.cpp spgk.hpp vector-kernels.hpp
 		spgk.cpp -o spgkV/spgk$(i)$(j)$(k)$(l)chunk_$(chunk).o ; \
 	)))))
 
-spgkFWX: spgk.cpp spgk.hpp vector-kernels.hpp 
+spgkFWX: spgk.cpp spgk.hpp vector-kernels.hpp
 	$(foreach chunk,4 16 64 128, \
 		$(foreach fwv,0 1, \
 		$(foreach inner,0, \
@@ -140,3 +140,5 @@ vector-kernels.o: vector-kernels.cpp vector-kernels.hpp
 timer.o: timer.c timer.h
 	cc $(FLAGS) -c timer.c -o timer.o
 
+run-cfg-seq: run-cfg.o timer.o spgk.o graph-loader.o jsonxx.o vector-kernels.o
+	c++  $(FLAGS) -lrt run-cfg.o timer.o spgk.o graph-loader.o jsonxx.o vector-kernels.o -o run-cfg-seq
