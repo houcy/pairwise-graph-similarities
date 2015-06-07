@@ -40,9 +40,9 @@ cd $base_dir
 for cfg1 in $(shuf $cfg_lst); do
 for cfg2 in $(shuf $cfg_lst); do
   echo "$cfg1,$cfg2"
-done; done > $job_name.csv
+done; done | shuf > $job_name.csv
 
-./generate.sh -d $base_dir/$job_name-data -v $versions -l $loops -c $chunks
+[ ! -e $base_dir/$job_name-data ] && ./generate.sh -d $base_dir/$job_name-data -v $versions -l $loops -c $chunks
 
 stool-batch $script_dir/run-one.sh $job_name 10 1 -d $base_dir/$job_name-data -s $samples_dir -v $versions -l $loops -c $chunks -t $numthreads -n $nruns -cfgs
 
