@@ -1,8 +1,7 @@
 #!/bin/bash
 
 while [ ! -z $1 ]; do
-  if   [ "$1" == "-d"   ]; then base_dir=$2;    shift 2;
-  elif [ "$1" == "-D"   ]; then data_dir=$2;    shift 2;
+  if   [ "$1" == "-D"   ]; then data_dir=$2;    shift 2;
   elif [ "$1" == "-s"   ]; then samples_dir=$2; shift 2;
   elif [ "$1" == "-j"   ]; then job_name=$2;    shift 2;
   elif [ "$1" == "-cfg" ]; then cfg_lst=$2;     shift 2;
@@ -11,7 +10,6 @@ while [ ! -z $1 ]; do
   elif [ "$1" == "-l"   ]; then loops=$2;       shift 2;
   elif [ "$1" == "-t"   ]; then numthreads=$2;  shift 2;
   elif [ "$1" == "-n"   ]; then nruns=$2;       shift 2;
-  elif [ "$1" == "-N"   ]; then num_nodes=$2;   shift 2;
   else echo "Unknown option: \"$1\""; shift 1; fi
 done
 
@@ -35,22 +33,21 @@ nnumthreads=$(echo $numthreads | tr ',' ' ' | wc -w)
 
 [ -z "$nruns" ] && nruns=3
 
-[ -z "$num_nodes" ] && num_nodes=1
-
 [ -z "$data_dir" ] && data_dir=$base_dir/$job_name-data
 
 script_dir=$(dirname $(readlink -f $0))
 
-cd $base_dir
+[ ! -e $data_dir ] && $script_dir/generate.sh -d $data_dir -v $versions -l $loops -c $chunks
 
-for cfg1 in $(shuf $cfg_lst); do
-for cfg2 in $(shuf $cfg_lst); do
-  echo "$cfg1,$cfg2"
-done; done | shuf > $job_name.csv
+static_arguments="-d $base_dir -D $data_dir -s $samples_dir -cfg $cfg_lst -n $nruns -N 1"
 
-[ ! -e $data_dir ] && ./generate.sh -d $data_dir -v $versions -l $loops -c $chunks
-
-data_dir=$(readlink -f $data_dir)
-
-stool-batch $script_dir/run-one.sh $job_name $num_nodes 1 -d $data_dir -s $samples_dir -v $versions -l $loops -c $chunks -t $numthreads -n $nruns -cfgs
-
+for v in $(echo $versions   | tr ',' ' '); do
+for l in $(echo $loops      | tr ',' ' '); do
+#for c in $(echo $chunks     | tr ',' ' '); do
+#for t in $(echo $numthreads | tr ',' ' '); do
+# sub_job_name=$job_name-v_$v-l_$l-c_$c-t_$t
+# $script_dir/run-slurm.sh $static_arguments -j $sub_job_name -v $v -l $l -c $c -t $t
+  sub_job_name=$job_name-v_$v-l_$l
+  $script_dir/run-slurm.sh $static_arguments -j $sub_job_name -v $v -l $l -c $chunks -t $numthreads
+#done; done;
+done; done

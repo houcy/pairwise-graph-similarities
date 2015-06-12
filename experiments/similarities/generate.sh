@@ -25,19 +25,21 @@ nchunks=$(echo $chunks | tr ',' ' ' | wc -w)
 
 n=$((nversions*nloops*nchunks))
 
+script_dir=$(dirname $(readlink -f $0))
+
 objs_dir=$work_dir/objs
 bins_dir=$work_dir/bins
 
-spgk_src=../../lib/spgk.cpp
+spgk_src=$script_dir/../../lib/spgk.cpp
 
-make -C ../../lib vector-kernels.o timer.o graph-loader.o jsonxx.o &> /dev/null
-make -C ../../src run-cfg.o &> /dev/null
-objs="../../src/run-cfg.o ../../lib/vector-kernels.o ../../lib/timer.o ../../lib/graph-loader.o ../../lib/jsonxx.o"
+make -C $script_dir/../../lib vector-kernels.o timer.o graph-loader.o jsonxx.o &> /dev/null
+make -C $script_dir/../../src run-cfg.o &> /dev/null
+objs="$script_dir/../../src/run-cfg.o $script_dir/../../lib/vector-kernels.o $script_dir/../../lib/timer.o $script_dir/../../lib/graph-loader.o $script_dir/../../lib/jsonxx.o"
 
 mkdir -p $objs_dir $bins_dir
 
-#CXX_FLAGS="-O0 -g -fopenmp -I../../include"
-CXX_FLAGS="-O3 -fopenmp -I../../include"
+#CXX_FLAGS="-O0 -g -fopenmp -I$script_dir/../../include"
+CXX_FLAGS="-O3 -fopenmp -I$script_dir/../../include"
 LD_FLAGS="-fopenmp -lrt"
 
 cnt=0
